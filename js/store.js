@@ -40,18 +40,18 @@ const Store = {
                     id: p.id,
                     name: p.name,
                     color: p.color,
-                    size: p.storage, // Using storage column for 'size' mapping
+                    size: '', 
                     type: p.category ? p.category.name : '',
-                    price: p.price,
-                    costPrice: p.cost_price,
-                    minSellingPrice: p.min_selling_price,
-                    quantity: p.stock_quantity,
-                    lowStock: p.low_stock_threshold,
+                    price: p.sale_price || 0,
+                    costPrice: p.cost_price || 0,
+                    minSellingPrice: p.min_selling_price || 0,
+                    quantity: p.quantity || 0,
+                    lowStock: p.low_stock_threshold || 5,
                     shop: p.shop ? p.shop.name : 'Wholesale Shop',
                     shop_id: p.shop_id,
                     category_id: p.category_id,
-                    barcode: p.barcode,
-                    image: p.image_url
+                    barcode: p.model_code,
+                    image: '' // Removed
                 }));
 
             this.cache.accessories = allProducts
@@ -59,19 +59,19 @@ const Store = {
                 .map(p => ({
                     id: p.id,
                     name: p.name,
-                    color: p.color,
-                    size: p.storage,
+                    color: '',
+                    size: '',
                     type: p.category ? p.category.name : '',
-                    price: p.price,
-                    costPrice: p.cost_price,
-                    minSellingPrice: p.min_selling_price,
-                    quantity: p.stock_quantity,
-                    lowStock: p.low_stock_threshold,
+                    price: p.sale_price || 0,
+                    costPrice: p.cost_price || 0,
+                    minSellingPrice: p.min_selling_price || 0,
+                    quantity: p.quantity || 0,
+                    lowStock: p.low_stock_threshold || 5,
                     shop: p.shop ? p.shop.name : 'Wholesale Shop',
                     shop_id: p.shop_id,
                     category_id: p.category_id,
-                    barcode: p.barcode,
-                    image: p.image_url
+                    barcode: p.model_code,
+                    image: '' // Removed
                 }));
 
             // Fetch sales
@@ -89,10 +89,10 @@ const Store = {
                 id: s.id,
                 displayId: s.id.substring(0,8).toUpperCase(),
                 timestamp: s.created_at,
-                total: s.total_amount,
-                discount: s.discount,
-                netTotal: s.net_amount,
-                paid: s.paid_amount,
+                total: s.subtotal || 0,
+                discount: s.discount_amount || 0,
+                netTotal: s.final_amount || 0,
+                paid: s.final_amount || 0, // Advanced schema doesn't track paid separate from final currently unless payment is split
                 paymentMethod: s.payment_method,
                 shop: s.shop ? s.shop.name : 'Unknown Shop',
                 shop_id: s.shop_id,
@@ -101,9 +101,9 @@ const Store = {
                 items: s.items.map(i => ({
                     id: i.product_id,
                     name: i.product ? i.product.name : 'Unknown',
-                    price: i.unit_price,
-                    quantity: i.quantity,
-                    subtotal: i.subtotal
+                    price: i.unit_sale_price || 0,
+                    quantity: i.quantity || 0,
+                    subtotal: i.line_total || 0
                 }))
             }));
 
@@ -247,35 +247,33 @@ const Store = {
         const categoryId = await this._getOrCreateCategory(item.type || (isAccessory ? 'Accessory' : 'Mobile'), isAccessory);
         const shopId = await this._getShopIdByName(item.shop);
         
-        await window.supabaseClient.from('products').insert({
+        const { data, error } = await window.supabaseClient.from('products').insert({
             id: item.id,
             shop_id: shopId,
             category_id: categoryId,
+            model_code: item.id.substring(0, 8),
             name: item.name,
-            color: item.color,
-            storage: item.size,
-            price: item.price,
             cost_price: item.costPrice,
+            sale_price: item.price,
             min_selling_price: item.minSellingPrice || item.costPrice,
-            stock_quantity: item.quantity,
+            quantity: item.quantity,
             low_stock_threshold: item.lowStock,
-            image_url: item.image
+            is_active: true
         });
+        if (error) console.error("Error inserting product into Supabase:", error);
     },
     
     async _asyncUpdateProduct(item) {
         const updateData = {
-            price: item.price,
+            sale_price: item.price,
             cost_price: item.costPrice,
-            stock_quantity: item.quantity,
+            quantity: item.quantity,
             low_stock_threshold: item.lowStock
         };
-        if (item.image) {
-            updateData.image_url = item.image;
-        }
-        await window.supabaseClient.from('products')
+        const { error } = await window.supabaseClient.from('products')
             .update(updateData)
             .eq('id', item.id);
+        if (error) console.error("Error updating product in Supabase:", error);
     },
 
     updateProduct(id, updatedData) {
@@ -298,20 +296,16 @@ const Store = {
     async _asyncUpdateProductFull(item) {
         const updateData = {
             name: item.name,
-            color: item.color,
-            storage: item.size,
-            price: item.price,
+            sale_price: item.price,
             cost_price: item.costPrice,
             min_selling_price: item.minSellingPrice || item.costPrice,
-            stock_quantity: item.quantity,
+            quantity: item.quantity,
             low_stock_threshold: item.lowStock
         };
-        if (item.image) {
-            updateData.image_url = item.image;
-        }
-        await window.supabaseClient.from('products')
+        const { error } = await window.supabaseClient.from('products')
             .update(updateData)
             .eq('id', item.id);
+        if (error) console.error("Error updating product full in Supabase:", error);
     },
 
     deleteProduct(id) {
@@ -368,27 +362,34 @@ const Store = {
             }
         }
         
+        const { data: userData } = await window.supabaseClient.auth.getUser();
+        const userId = userData.user?.id;
+        
         // Insert Sale
         await window.supabaseClient.from('sales').insert({
             id: sale.id,
             shop_id: shopId,
-            user_id: (await window.supabaseClient.auth.getUser()).data.user?.id,
+            cashier_id: userId,
             customer_id: customerId,
-            total_amount: sale.total,
-            discount: sale.discount,
-            net_amount: sale.netTotal,
-            paid_amount: sale.paid,
+            subtotal: sale.total,
+            discount_amount: sale.discount,
+            final_amount: sale.netTotal,
             payment_method: sale.paymentMethod || 'cash'
         });
         
         // Insert Sale Items
-        const saleItems = sale.items.map(i => ({
-            sale_id: sale.id,
-            product_id: i.id,
-            quantity: i.quantity,
-            unit_price: i.price,
-            subtotal: i.subtotal
-        }));
+        const saleItems = sale.items.map(i => {
+            const product = this.cache.inventory.find(p => p.id === i.id) || this.cache.accessories.find(a => a.id === i.id);
+            return {
+                sale_id: sale.id,
+                product_id: i.id,
+                quantity: i.quantity,
+                unit_cost_price: product ? product.costPrice : 0,
+                unit_sale_price: product ? product.price : i.price,
+                unit_min_price: product ? (product.minSellingPrice || product.costPrice) : 0,
+                unit_final_price: i.price
+            };
+        });
         
         await window.supabaseClient.from('sale_items').insert(saleItems);
         // Triggers in the database will handle stock reduction securely.
@@ -413,9 +414,12 @@ const Store = {
 
         this.cache.sales.splice(saleIndex, 1);
         
-        // Note: Real db triggers would handle restoring stock upon sale deletion,
-        // but for now we just delete the sale record.
-        window.supabaseClient.from('sales').delete().eq('id', saleId).catch(console.error);
+        // Note: Real db triggers would handle restoring stock upon sale voiding
+        window.supabaseClient.from('sales').update({ status: 'voided' }).eq('id', saleId)
+            .then(({ error }) => {
+                if (error) console.error("Error voiding sale in Supabase:", error);
+            })
+            .catch(console.error);
         return true;
     }
 };

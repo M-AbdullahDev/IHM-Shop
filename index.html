@@ -203,14 +203,26 @@
                     <form id="login-form">
                         <input type="hidden" id="login-role-selection" value="admin">
                         
-                        <div class="form-group" style="text-align: left; margin-bottom: 1.25rem;">
-                            <label id="login-email-label" style="text-transform: uppercase; letter-spacing: 0.1em; font-size: 0.7rem; font-weight: 700;">Admin Email</label>
-                            <input type="email" id="admin-login-email" placeholder="admin@gmail.com" required style="background: var(--bg-main);">
-                            <div id="login-email-hint" style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.3rem; display: none;">Use shop1@gmail.com, shop2@gmail.com, etc.</div>
+                        <!-- Shop Selection for Shopkeeper -->
+                        <div class="form-group" id="login-shop-group" style="text-align: left; margin-bottom: 1.25rem; display: none;">
+                            <label style="text-transform: uppercase; letter-spacing: 0.1em; font-size: 0.7rem; font-weight: 700;">Select Branch / Shop</label>
+                            <select id="login-shop-select" style="background: var(--bg-main); width: 100%; border: 1px solid var(--glass-border); border-radius: 8px; padding: 0.8rem 1rem; color: var(--text-main); font-weight: 600;">
+                                <option value="Wholesale Shop">Wholesale Shop</option>
+                                <option value="Shop 2">Shop 2</option>
+                                <option value="Shop 3">Shop 3</option>
+                            </select>
                         </div>
+
+                        <!-- Email Group for Admin -->
+                        <div class="form-group" id="login-email-group" style="text-align: left; margin-bottom: 1.25rem;">
+                            <label id="login-email-label" style="text-transform: uppercase; letter-spacing: 0.1em; font-size: 0.7rem; font-weight: 700;">Admin Email</label>
+                            <input type="text" id="admin-login-email" placeholder="ihm.irfan03@gmail.com" style="background: var(--bg-main);">
+                            <div id="login-email-hint" style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.3rem; display: none;">Use admin email or PIN</div>
+                        </div>
+
                         <div class="form-group" style="text-align: left; margin-bottom: 2rem;">
-                            <label style="text-transform: uppercase; letter-spacing: 0.1em; font-size: 0.7rem; font-weight: 700;">Password</label>
-                            <input type="password" id="admin-password" placeholder="••••••••" required style="background: var(--bg-main);">
+                            <label id="login-pwd-label" style="text-transform: uppercase; letter-spacing: 0.1em; font-size: 0.7rem; font-weight: 700;">Password / Admin PIN</label>
+                            <input type="password" id="admin-password" placeholder="admin@irfan or admin2468" required style="background: var(--bg-main);">
                         </div>
                         <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; height: 55px; border-radius: 16px; font-size: 1rem;">
                             Establish Session
@@ -1477,22 +1489,61 @@
             } else {
                 options = ['S', 'M', 'L', 'XL', 'XXL'];
             }
+
+            sizeSelect.innerHTML = '<option value="">Select Size</option>';
+            options.forEach(opt => {
+                const optEl = document.createElement('option');
+                optEl.value = opt;
+                optEl.textContent = opt;
+                if (currentValue && opt.toString().toLowerCase() === currentValue.toString().toLowerCase()) {
+                    optEl.selected = true;
+                }
+                sizeSelect.appendChild(optEl);
+            });
+        }
+
+        window.setLoginRole = function(role) {
+            const btnAdmin = document.getElementById('login-tab-admin');
+            const btnShopkeeper = document.getElementById('login-tab-shopkeeper');
+            const roleInput = document.getElementById('login-role-selection');
+            const shopGroup = document.getElementById('login-shop-group');
+            const emailGroup = document.getElementById('login-email-group');
+            const pwdLabel = document.getElementById('login-pwd-label');
+            const pwdInput = document.getElementById('admin-password');
+            const forgotBtn = document.getElementById('forgot-pwd-btn');
+            const errorMsg = document.getElementById('login-error');
+
+            if (errorMsg) errorMsg.style.display = 'none';
+            if (roleInput) roleInput.value = role;
+
             if (role === 'admin') {
-                btnAdmin.style.background = 'var(--bg-card)';
-                btnAdmin.style.color = 'var(--text-main)';
-                btnShopkeeper.style.background = 'transparent';
-                btnShopkeeper.style.color = 'var(--text-muted)';
-                emailLabel.textContent = 'Admin Email';
-                emailInput.placeholder = 'admin@gmail.com';
-                emailHint.style.display = 'none';
+                if (btnAdmin) {
+                    btnAdmin.style.background = 'var(--bg-card)';
+                    btnAdmin.style.color = 'var(--text-main)';
+                }
+                if (btnShopkeeper) {
+                    btnShopkeeper.style.background = 'transparent';
+                    btnShopkeeper.style.color = 'var(--text-muted)';
+                }
+                if (shopGroup) shopGroup.style.display = 'none';
+                if (emailGroup) emailGroup.style.display = 'block';
+                if (pwdLabel) pwdLabel.textContent = 'Password / Admin PIN';
+                if (pwdInput) pwdInput.placeholder = 'admin@irfan or admin2468';
+                if (forgotBtn) forgotBtn.style.display = 'block';
             } else {
-                btnShopkeeper.style.background = 'var(--bg-card)';
-                btnShopkeeper.style.color = 'var(--text-main)';
-                btnAdmin.style.background = 'transparent';
-                btnAdmin.style.color = 'var(--text-muted)';
-                emailLabel.textContent = 'Shopkeeper Email';
-                emailInput.placeholder = 'shop1@gmail.com';
-                emailHint.style.display = 'block';
+                if (btnShopkeeper) {
+                    btnShopkeeper.style.background = 'var(--bg-card)';
+                    btnShopkeeper.style.color = 'var(--text-main)';
+                }
+                if (btnAdmin) {
+                    btnAdmin.style.background = 'transparent';
+                    btnAdmin.style.color = 'var(--text-muted)';
+                }
+                if (shopGroup) shopGroup.style.display = 'block';
+                if (emailGroup) emailGroup.style.display = 'none';
+                if (pwdLabel) pwdLabel.textContent = 'Shop PIN / Password';
+                if (pwdInput) pwdInput.placeholder = 'Enter PIN (default: shop1234)';
+                if (forgotBtn) forgotBtn.style.display = 'none';
             }
         };
     </script>

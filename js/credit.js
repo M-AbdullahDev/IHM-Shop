@@ -145,12 +145,17 @@ const Udhaar = {
         });
         
         if (customer.balance > 0) {
+            const { data: userData } = await window.supabaseClient.auth.getUser();
+            const userId = userData.user?.id;
+            
             await window.supabaseClient.from('udhaar_transactions').insert({
                 id: customer.transactions[0].id,
                 customer_id: customer.id,
-                transaction_type: 'credit',
+                shop_id: shopId,
+                type: 'credit',
                 amount: customer.balance,
-                note: 'Opening Balance'
+                note: 'Opening Balance',
+                created_by: userId
             });
         }
     },
@@ -185,12 +190,21 @@ const Udhaar = {
     },
 
     async _asyncInsertTransaction(customerId, txn) {
+        let shopId = null;
+        if (window.Store && window.Store._getShopIdByName) {
+            shopId = await window.Store._getShopIdByName(localStorage.getItem('active_shop') || 'Wholesale Shop');
+        }
+        const { data: userData } = await window.supabaseClient.auth.getUser();
+        const userId = userData.user?.id;
+
         await window.supabaseClient.from('udhaar_transactions').insert({
             id: txn.id,
             customer_id: customerId,
-            transaction_type: txn.type,
+            shop_id: shopId,
+            type: txn.type,
             amount: txn.amount,
-            note: txn.note
+            note: txn.note,
+            created_by: userId
         });
     },
 
@@ -250,7 +264,9 @@ const Udhaar = {
         
         this.cache.customers = this.cache.customers.filter(c => c.id !== customerId);
         
-        window.supabaseClient.from('customers').delete().eq('id', customerId).catch(console.error);
+        window.supabaseClient.from('customers').delete().eq('id', customerId).then(({ error }) => {
+            if (error) console.error("Error deleting customer in Supabase:", error);
+        });
         
         this.saveData(this.cache);
         UI.showToast('Customer deleted', 'success');

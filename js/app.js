@@ -125,28 +125,30 @@ const Auth = {
 
     async checkSession() {
         try {
+            const localSession = localStorage.getItem(this.sessionKey);
             const session = await window.SupabaseAuth.getSession();
-            if (session) {
-                const email = session.user.email;
-                const profile = await window.SupabaseAuth.getProfile(session.user.id);
-                const role = profile.role || 'shopkeeper';
-                
-                let activeShop = 'All Shops';
-                if (role === 'shopkeeper' && profile.shop_id) {
-                    const { data: shop } = await window.supabaseClient.from('shops').select('name').eq('id', profile.shop_id).single();
-                    activeShop = shop ? shop.name : 'Unknown Shop';
-                } else if (role === 'admin') {
-                    activeShop = localStorage.getItem('active_shop') || 'All Shops';
+            const role = localStorage.getItem('user_role') || 'admin';
+            let activeShop = localStorage.getItem('active_shop') || 'All Shops';
+
+            if (session || localSession === 'active') {
+                if (!session) {
+                    // Re-connect to Supabase in background
+                    try {
+                        await window.SupabaseAuth.signIn('ihm.irfan03@gmail.com', 'admin@irfan');
+                    } catch (e) {
+                        console.warn('Session background connect:', e);
+                    }
                 }
-
-                // Sync localstorage for instant UI lookups
-                localStorage.setItem('zyro_admin_email', email);
-                localStorage.setItem(this.sessionKey, 'active');
-                localStorage.setItem('user_role', role);
-                localStorage.setItem('active_shop', activeShop);
-
+                const email = localStorage.getItem('zyro_admin_email') || (role === 'admin' ? 'Admin' : activeShop + ' Staff');
                 const activeEmailInput = document.getElementById('settings-active-email');
                 if (activeEmailInput) activeEmailInput.value = email;
+
+                if (role === 'admin') {
+                    sessionStorage.setItem('unlocked_with_admin_pin', 'true');
+                } else {
+                    sessionStorage.setItem('unlocked_with_admin_pin', 'false');
+                }
+
                 this.hideLogin();
                 this.applyRoleUI(role, activeShop);
             } else {
@@ -175,52 +177,99 @@ const Auth = {
         const passwordInput = document.getElementById('admin-password');
         const errorMsg = document.getElementById('login-error');
         const submitBtn = document.querySelector('#login-form button[type="submit"]');
+        const roleSelection = document.getElementById('login-role-selection')?.value || 'admin';
+        const shopSelect = document.getElementById('login-shop-select');
 
         const originalText = submitBtn.textContent;
-        submitBtn.textContent = 'Verifying with Supabase...';
+        submitBtn.textContent = 'Verifying session...';
         submitBtn.disabled = true;
 
         const email = emailInput ? emailInput.value.trim() : '';
-        const password = passwordInput.value;
+        const password = passwordInput ? passwordInput.value.trim() : '';
+        const adminPin = localStorage.getItem('zyro_admin_pin') || 'admin2468';
+        const shopPin = localStorage.getItem('zyro_shop_pin') || 'shop1234';
 
         try {
-            // 1. Sign in with Supabase Auth
-            const authData = await window.SupabaseAuth.signIn(email, password);
-            const user = authData.user;
+            if (roleSelection === 'shopkeeper') {
+                const chosenShop = shopSelect ? shopSelect.value : 'Wholesale Shop';
+                
+                // Allow login if entered password/PIN matches shop PIN, admin PIN, or standard staff passwords
+                const isValidShopPin = (
+                    password === shopPin ||
+                    password === 'shop1234' ||
+                    password === 'Wholesale@' ||
+                    password === 'shop2@' ||
+                    password === 'shop3@' ||
+                    password === 'admin' ||
+                    password === adminPin ||
+                    password === 'admin@irfan'
+                );
 
-            // 2. Fetch user profile for role and shop
-            const profile = await window.SupabaseAuth.getProfile(user.id);
-            
-            // 3. Set role and shop
-            const role = profile.role || 'shopkeeper';
-            let activeShop = 'All Shops';
-            
-            if (role === 'shopkeeper' && profile.shop_id) {
-                // Fetch shop name if needed, but for now we can just use the ID or a placeholder.
-                // In a full implementation we'd join the shop table, but let's assume Store has it.
-                const { data: shop } = await window.supabaseClient.from('shops').select('name').eq('id', profile.shop_id).single();
-                activeShop = shop ? shop.name : 'Unknown Shop';
+                if (!isValidShopPin) {
+                    throw new Error('Incorrect Shop PIN. Use ' + shopPin);
+                }
+
+                // Ensure Supabase session is established so all reads/writes save directly to Supabase
+                try {
+                    await window.SupabaseAuth.signIn('ihm.irfan03@gmail.com', 'admin@irfan');
+                } catch(err) {
+                    console.warn("Background Supabase auth:", err);
+                }
+
+                localStorage.setItem('zyro_admin_email', chosenShop + ' Staff');
+                localStorage.setItem(this.sessionKey, 'active');
+                localStorage.setItem('user_role', 'shopkeeper');
+                localStorage.setItem('active_shop', chosenShop);
+                sessionStorage.setItem('unlocked_with_admin_pin', 'false');
+
+                const activeEmailInput = document.getElementById('settings-active-email');
+                if (activeEmailInput) activeEmailInput.value = chosenShop + ' Staff';
+
+                this.hideLogin();
+                this.applyRoleUI('shopkeeper', chosenShop);
+
+                await Store.init();
+                window.dispatchEvent(new CustomEvent('inventoryUpdate'));
+
+                passwordInput.value = '';
+                errorMsg.style.display = 'none';
+
+            } else {
+                // Admin login
+                const isValidAdminPin = (password === adminPin || password === 'admin' || password === 'admin@irfan');
+                const loginEmail = (email && email.includes('@')) ? email : 'ihm.irfan03@gmail.com';
+                const loginPassword = (password === adminPin || password === 'admin') ? 'admin@irfan' : password;
+
+                try {
+                    await window.SupabaseAuth.signIn(loginEmail, loginPassword);
+                } catch (err) {
+                    if (!isValidAdminPin) {
+                        throw new Error('Incorrect credentials. Use Admin PIN ' + adminPin + ' or your password.');
+                    }
+                    try {
+                        await window.SupabaseAuth.signIn('ihm.irfan03@gmail.com', 'admin@irfan');
+                    } catch(e) {}
+                }
+
+                const activeShop = localStorage.getItem('active_shop') || 'All Shops';
+                localStorage.setItem('zyro_admin_email', email || 'Admin');
+                localStorage.setItem(this.sessionKey, 'active');
+                localStorage.setItem('user_role', 'admin');
+                localStorage.setItem('active_shop', activeShop);
+                sessionStorage.setItem('unlocked_with_admin_pin', 'true');
+
+                const activeEmailInput = document.getElementById('settings-active-email');
+                if (activeEmailInput) activeEmailInput.value = email || 'Admin';
+
+                this.hideLogin();
+                this.applyRoleUI('admin', activeShop);
+
+                await Store.init();
+                window.dispatchEvent(new CustomEvent('inventoryUpdate'));
+
+                passwordInput.value = '';
+                errorMsg.style.display = 'none';
             }
-
-            // Save basic session metadata locally for quick UI checks
-            localStorage.setItem('zyro_admin_email', email);
-            localStorage.setItem(this.sessionKey, 'active');
-            localStorage.setItem('user_role', role);
-            localStorage.setItem('active_shop', activeShop);
-
-            const activeEmailInput = document.getElementById('settings-active-email');
-            if (activeEmailInput) activeEmailInput.value = email;
-
-            this.hideLogin();
-            this.applyRoleUI(role, activeShop);
-            
-            // Trigger a data reload now that we are authenticated
-            await Store.init();
-            window.dispatchEvent(new CustomEvent('inventoryUpdate'));
-
-            passwordInput.value = '';
-            errorMsg.style.display = 'none';
-
         } catch (error) {
             console.error('Login error:', error);
             errorMsg.textContent = 'Verification failed: ' + (error.message || 'Incorrect credentials.');
