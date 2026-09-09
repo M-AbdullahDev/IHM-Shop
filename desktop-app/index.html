@@ -1,0 +1,1393 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo Shop | Admin Inventory Management</title>
+
+    <!-- Fonts & Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+
+    <!-- Global Error Handler to capture and render any JS errors directly on screen -->
+    <script>
+        window.addEventListener('error', function(event) {
+            let banner = document.getElementById('global-error-banner');
+            if (!banner) {
+                banner = document.createElement('div');
+                banner.id = 'global-error-banner';
+                banner.style.position = 'fixed';
+                banner.style.top = '0';
+                banner.style.left = '0';
+                banner.style.width = '100%';
+                banner.style.backgroundColor = '#ef4444';
+                banner.style.color = '#ffffff';
+                banner.style.padding = '1.5rem';
+                banner.style.zIndex = '999999';
+                banner.style.fontFamily = 'monospace';
+                banner.style.fontSize = '0.9rem';
+                banner.style.boxShadow = '0 4px 12px rgba(0,0,0,0.3)';
+                banner.style.maxHeight = '50vh';
+                banner.style.overflowY = 'auto';
+                banner.style.borderBottom = '4px solid #b91c1c';
+                
+                const closeBtn = document.createElement('button');
+                closeBtn.textContent = '✕ Close';
+                closeBtn.style.float = 'right';
+                closeBtn.style.background = 'rgba(0,0,0,0.2)';
+                closeBtn.style.border = 'none';
+                closeBtn.style.color = 'white';
+                closeBtn.style.padding = '0.3rem 0.6rem';
+                closeBtn.style.borderRadius = '4px';
+                closeBtn.style.cursor = 'pointer';
+                closeBtn.style.fontWeight = 'bold';
+                closeBtn.onclick = function() { banner.remove(); };
+                
+                banner.appendChild(closeBtn);
+                
+                const title = document.createElement('h3');
+                title.textContent = '🚨 Critical System Error';
+                title.style.margin = '0 0 0.5rem 0';
+                title.style.fontSize = '1.1rem';
+                banner.appendChild(title);
+                
+                const desc = document.createElement('div');
+                desc.id = 'global-error-desc';
+                banner.appendChild(desc);
+                
+                document.body.appendChild(banner);
+            }
+            
+            const errorDesc = document.getElementById('global-error-desc');
+            if (errorDesc) {
+                const errorMsg = event.error ? event.error.message : event.message;
+                const errorStack = event.error ? event.error.stack : 'No stack trace available';
+                
+                let extraTip = '';
+                if (errorMsg === 'Script error.' || String(event.filename).includes(':0') || event.lineno === 0) {
+                    extraTip = `
+                    <div style="margin-top: 1rem; color: #fef3c7; background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.3); padding: 0.75rem; border-radius: 6px; font-family: sans-serif;">
+                        <strong>💡 Local File Protocol (file://) Detected:</strong><br>
+                        Because you are opening index.html directly from your folder (rather than a localhost server), the browser hides the actual javascript error details from the script window event listener for security reasons.<br><br>
+                        <strong>To see and copy the real error details:</strong><br>
+                        1. Press <strong>F12</strong> (or right-click anywhere and select <strong>Inspect</strong>).<br>
+                        2. Click on the <strong>Console</strong> tab in the devtools.<br>
+                        3. Find the red error message showing the actual file name, line number, and error message, and paste it here.
+                    </div>`;
+                }
+                
+                errorDesc.innerHTML += `
+                <p style="margin: 0.5rem 0;">
+                    <strong>Error:</strong> ${errorMsg}<br>
+                    <strong>File:</strong> ${event.filename || 'Unknown'}:${event.lineno || 0}<br>
+                    <strong>Stack:</strong><br>
+                    <span style="white-space: pre-wrap; font-size: 0.8rem; display: block; background: rgba(0,0,0,0.15); padding: 0.5rem; border-radius: 4px; margin-top: 0.25rem;">${errorStack}</span>
+                    ${extraTip}
+                </p>`;
+            }
+        });
+    </script>
+    <!-- Fonts & Icons -->
+</head>
+
+<body>
+
+    <div id="app">
+        <!-- Sidebar Navigation -->
+        <aside>
+            <div class="logo" style="justify-content: space-between; width: 100%;">
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                    <div class="logo-icon">D</div>
+                    <div class="logo-text">DEMO SHOP</div>
+                </div>
+                <button id="theme-toggle" class="btn-icon sidebar-text" title="Toggle Theme"
+                    style="background: transparent; border: 1px solid var(--glass-border); color: var(--text-main); width: 36px; height: 36px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: var(--transition);">
+                    <i class="fas fa-moon"></i>
+                </button>
+            </div>
+
+            <nav>
+                <div class="nav-item active" data-page="dashboard">
+                    <i class="fas fa-th-large"></i>
+                    <span>Dashboard</span>
+                </div>
+                <div class="nav-item" data-page="inventory">
+                    <i class="fas fa-boxes-stacked"></i>
+                    <span>Product List</span>
+                </div>
+                <div class="nav-item" data-page="wintercollection">
+                    <i class="fas fa-snowflake"></i>
+                    <span>Winter Collection</span>
+                </div>
+                <div class="nav-item" data-page="accessories">
+                    <i class="fas fa-gem"></i>
+                    <span>Accessories</span>
+                </div>
+                <div class="nav-item" data-page="analytics">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Sales Analytics</span>
+                </div>
+                <div class="nav-item" data-page="ledger">
+                    <i class="fas fa-file-invoice-dollar"></i>
+                    <span>Admin Ledger</span>
+                </div>
+                <div class="nav-item" data-page="pos">
+                    <i class="fas fa-cash-register"></i>
+                    <span>Checkout</span>
+                </div>
+                <div class="nav-item" data-page="receipts">
+                    <i class="fas fa-receipt"></i>
+                    <span>Receipts Vault</span>
+                </div>
+                <div class="nav-item" data-page="settings">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
+                </div>
+            </nav>
+
+            <div style="margin-top: auto; padding-top: 2rem; border-top: 1px solid var(--glass-border);">
+                <div style="display: flex; align-items: center; gap: 1rem; cursor: pointer;" id="logout-btn">
+                    <div
+                        style="width: 40px; height: 40px; border-radius: 50%; background: var(--bg-card-hover); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                        <i class="fas fa-sign-out-alt" style="color: var(--accent-danger);"></i>
+                    </div>
+                    <div class="sidebar-text">
+                        <div style="font-weight: 600; font-size: 0.9rem;">Logout</div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted);">Admin Session</div>
+                    </div>
+                </div>
+
+                <div id="sync-indicator"
+                    style="margin-top: 1rem; display: flex; align-items: center; gap: 0.5rem; font-size: 0.75rem; color: var(--text-muted); margin-left: 16px;">
+                    <i class="fas fa-circle" style="font-size: 0.5rem; color: var(--accent-danger); flex-shrink: 0;"></i>
+                    <span class="sidebar-text">Offline</span>
+                </div>
+                <div style="margin-top: 0.5rem; font-size: 0.7rem; color: var(--text-muted); margin-left: 16px; font-weight: bold; opacity: 0.5;">
+                    v3.2.1 | <span id="diag-prod-count">0</span> products, <span id="diag-acc-count">0</span> accessories
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <!-- Main Content Area -->
+
+        <main>
+
+            <!-- Login Overlay -->
+            <div id="login-overlay"
+                style="position: fixed; inset: 0; background: var(--bg-main); z-index: 10000; display: flex; align-items: center; justify-content: center;">
+                <div class="glass-card"
+                    style="width: 100%; max-width: 440px; padding: 4rem 3rem; text-align: center; position: relative; z-index: 2; border: 1px solid var(--glass-border); animation: scaleIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;">
+                    <div class="logo" style="justify-content: center; margin-bottom: 2.5rem;">
+                        <div class="logo-icon">D</div>
+                        <div class="logo-text">DEMO SHOP</div>
+                    </div>
+                    <h2 style="margin-bottom: 0.5rem; font-family: 'Outfit'; font-weight: 800; font-size: 2rem;">Admin
+                        Access</h2>
+                    <p style="color: var(--text-muted); margin-bottom: 2.5rem;">Secure entrance to the signature vault
+                    </p>
+
+                    <form id="login-form">
+                        <div class="form-group" style="text-align: left; margin-bottom: 1.25rem;">
+                            <label
+                                style="text-transform: uppercase; letter-spacing: 0.1em; font-size: 0.7rem; font-weight: 700;">Admin Email</label>
+                            <input type="email" id="admin-login-email" placeholder="admin@example.com" required
+                                style="background: var(--bg-main);">
+                        </div>
+                        <div class="form-group" style="text-align: left; margin-bottom: 2rem;">
+                            <label
+                                style="text-transform: uppercase; letter-spacing: 0.1em; font-size: 0.7rem; font-weight: 700;">Password</label>
+                            <input type="password" id="admin-password" placeholder="••••••••" required
+                                style="background: var(--bg-main);">
+                        </div>
+                        <button type="submit" class="btn btn-primary"
+                            style="width: 100%; justify-content: center; height: 55px; border-radius: 16px; font-size: 1rem;">
+                            Establish Session
+                        </button>
+                    </form>
+                    <button class="btn btn-ghost" id="forgot-pwd-btn"
+                        style="margin-top: 1.5rem; font-size: 0.8rem; width: 100%; color: var(--text-muted);">
+                        Credentials Recovery
+                    </button>
+                    <p id="login-error"
+                        style="color: var(--accent-danger); font-size: 0.8rem; margin-top: 1.5rem; display: none;">
+                        Verification failed. Please try again.</p>
+                </div>
+            </div>
+
+            <!-- Password Recovery Modal -->
+            <div id="recovery-overlay"
+                style="position: fixed; inset: 0; background: var(--bg-main); z-index: 10001; display: none; align-items: center; justify-content: center;">
+                <div class="glass-card"
+                    style="width: 100%; max-width: 440px; padding: 4rem 3rem; text-align: center; border: 1px solid var(--glass-border);">
+                    <div
+                        style="width: 80px; height: 80px; background: var(--bg-card-hover); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 2rem;">
+                        <i class="fas fa-key" style="font-size: 2.5rem; color: var(--accent-primary);"></i>
+                    </div>
+                    <h2 style="margin-bottom: 0.5rem; font-family: 'Outfit'; font-weight: 800;">Credential Recovery</h2>
+
+                    <div id="recovery-local-section">
+                        <p id="recovery-q-text" style="color: var(--text-muted); margin-bottom: 2.5rem;">Loading
+                            security challenge...</p>
+                        <form id="recovery-form">
+                            <div class="form-group" style="text-align: left; margin-bottom: 1.5rem;">
+                                <label
+                                    style="text-transform: uppercase; letter-spacing: 0.1em; font-size: 0.7rem; font-weight: 700;">Secret
+                                    Answer</label>
+                                <input type="text" id="recovery-answer-input" placeholder="Enter answer" required
+                                    style="background: var(--bg-main);">
+                            </div>
+                            <div class="form-group" style="text-align: left; margin-bottom: 2rem;">
+                                <label
+                                    style="text-transform: uppercase; letter-spacing: 0.1em; font-size: 0.7rem; font-weight: 700;">New
+                                    Security Key</label>
+                                <input type="password" id="recovery-new-pwd" placeholder="Enter new password" required
+                                    style="background: var(--bg-main);">
+                            </div>
+                            <div style="display: flex; gap: 1rem;">
+                                <button type="button" class="btn btn-ghost"
+                                    onclick="document.getElementById('recovery-overlay').style.display='none'"
+                                    style="flex: 1; border-radius: 14px; border: 1px solid var(--glass-border); color: var(--text-main);">Cancel</button>
+                                <button type="submit" class="btn btn-primary"
+                                    style="flex: 2; border-radius: 14px;">Reset Key</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dashboard Page -->
+            <div id="dashboard-page" class="page-content" style="display: none;">
+                <header class="page-header">
+                    <div>
+                        <p style="color: var(--text-muted); font-size: 0.875rem;">Premium Management,</p>
+                        <h1>Where Styles Meet Vibe</h1>
+                    </div>
+                    <div id="sync-status" class="status-indicator">
+                        <i class="fas fa-circle" style="color: var(--accent-success);"></i>
+                        <span>Local Mode</span>
+                    </div>
+                </header>
+
+                <!-- Decorative Hero Section -->
+                <div class="glass-card"
+                    style="margin-bottom: 2rem; padding: 0; overflow: hidden; height: 350px; display: flex; position: relative; background: linear-gradient(135deg, #111 0%, #000 100%);">
+                    <div
+                        style="flex: 1; padding: 4rem; display: flex; flex-direction: column; justify-content: center; z-index: 2; color: white;">
+                        <div
+                            style="width: 50px; height: 3px; background: #ffffff; margin-bottom: 1.5rem; opacity: 0.8; border-radius: 10px;">
+                        </div>
+                        <h2
+                            style="font-size: 3.5rem; line-height: 1.1; margin-bottom: 1.5rem; font-family: 'Outfit'; font-weight: 800; letter-spacing: -2px; color: #ffffff !important; text-transform: none;">
+                            Fearless Fashion,<br>Zero Limits
+                        </h2>
+                        <p
+                            style="color: rgba(255,255,255,0.7); max-width: 480px; line-height: 1.8; font-size: 1.1rem; border-left: 2px solid rgba(255,255,255,0.2); padding-left: 1.5rem; font-style: italic;">
+                            Built for those who refuse to blend in. Rule the streets in threads designed to shock the
+                            system
+                        </p>
+                        <div style="margin-top: 2.5rem; display: flex; gap: 1.5rem; align-items: center;">
+                            <button class="btn btn-primary" onclick="UI.showPage('pos')"
+                                style="padding: 1rem 2.5rem; border-radius: 14px; border: 1px solid transparent; height: 55px; justify-content: center;">
+                                <i class="fas fa-shopping-bag" style="margin-right: 0.5rem;"></i> New Sale
+                            </button>
+                            <button class="btn btn-ghost" onclick="UI.showPage('inventory')"
+                                style="border: 1px solid rgba(255,255,255,0.1); color: white !important; padding: 1rem 2.5rem; border-radius: 14px; height: 55px; justify-content: center;">
+                                <i class="fas fa-list" style="margin-right: 0.5rem;"></i> Browse List
+                            </button>
+                        </div>
+                    </div>
+
+                    <div
+                        style="flex: 1; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center;">
+                        <!-- Decorative Abstract Shapes -->
+                        <div
+                            style="position: absolute; width: 300px; height: 300px; border-radius: 50%; background: #ffffff; filter: blur(120px); opacity: 0.05; animation: float 8s infinite ease-in-out;">
+                        </div>
+                        <div
+                            style="position: absolute; inset: 0; background: url('https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&q=80&w=1000') center/cover; opacity: 0.2; mix-blend-mode: luminosity;">
+                        </div>
+                        <i class="fas fa-crown"
+                            style="font-size: 12rem; color: var(--accent-primary); opacity: 0.03; transform: rotate(15deg);"></i>
+                    </div>
+                </div>
+
+                <div class="card-grid" style="grid-template-columns: repeat(3, 1fr);">
+                    <div class="glass-card" style="text-align: center; padding: 2.5rem;">
+                        <i class="fas fa-shield-halved"
+                            style="font-size: 2.5rem; color: var(--accent-primary); margin-bottom: 1.5rem;"></i>
+                        <h3 style="margin-bottom: 0.5rem;">Enterprise Grade</h3>
+                        <p style="font-size: 0.85rem; color: var(--text-muted);">Enterprise license active</p>
+                    </div>
+                    <div class="glass-card" style="text-align: center; padding: 2.5rem;">
+                        <i class="fas fa-database"
+                            style="font-size: 2.5rem; color: var(--accent-primary); margin-bottom: 1.5rem;"></i>
+                        <h3 style="margin-bottom: 0.5rem;">Local Storage</h3>
+                        <p style="font-size: 0.85rem; color: var(--text-muted);">Offline-first data engine</p>
+                    </div>
+                    <div class="glass-card" style="text-align: center; padding: 2.5rem;">
+                        <i class="fas fa-fingerprint"
+                            style="font-size: 2.5rem; color: var(--accent-primary); margin-bottom: 1.5rem;"></i>
+                        <h3 style="margin-bottom: 0.5rem;">Master Secure</h3>
+                        <p style="font-size: 0.85rem; color: var(--text-muted);">Ledger data protected</p>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem;">
+                    <div class="glass-card" style="padding: 2rem;">
+                        <h3 style="margin-bottom: 1.5rem; font-family: 'Outfit';">Recent Transactions</h3>
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Order ID</th>
+                                        <th>Items</th>
+                                        <th>Total</th>
+                                        <th>Time</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="recent-sales-list">
+                                    <!-- Dynamic content -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="glass-card">
+                        <h3 style="margin-bottom: 1.5rem; font-family: 'Outfit';">Quick Actions</h3>
+                        <div style="display: flex; flex-direction: column; gap: 1rem;">
+                            <button class="btn btn-ghost" style="justify-content: flex-start; width: 100%;"
+                                onclick="UI.showPage('pos')">
+                                <i class="fas fa-shopping-cart"></i> New Sale
+                            </button>
+                            <button class="btn btn-ghost" style="justify-content: flex-start; width: 100%;"
+                                onclick="Backup.exportToCSV()">
+                                <i class="fas fa-download"></i> Export Data
+                            </button>
+                            <button class="btn btn-ghost" style="justify-content: flex-start; width: 100%;"
+                                onclick="window.print()">
+                                <i class="fas fa-file-pdf"></i> Daily Report
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Inventory (Product List) Page -->
+            <div id="inventory-page" class="page-content" style="display: none;">
+                <header class="page-header">
+                    <div style="display: flex; flex-direction: column; gap: 0.25rem;">
+                        <p style="color: var(--text-muted); font-size: 0.875rem;">Premium Management</p>
+                        <h1>Store Inventory</h1>
+                    </div>
+                    <div style="display: flex; gap: 0.75rem; align-items: center;">
+
+                        <div style="width: 200px;">
+                            <input type="text" id="inventory-search" placeholder="Search products..." style="margin: 0; height: 42px; font-size: 0.85rem; border-radius: 8px;">
+                        </div>
+                        <button class="btn btn-ghost" onclick="Backup.exportToCSV()" title="Export CSV" style="height: 42px; width: 42px; display: flex; align-items: center; justify-content: center; border-radius: 8px; border: 1px solid var(--glass-border);">
+                            <i class="fas fa-download"></i>
+                        </button>
+                    </div>
+                </header>
+
+                <div class="table-container">
+                    <table id="inventory-table">
+                        <thead>
+                            <tr>
+                                <th>Product Info</th>
+                                <th>Type / Style</th>
+                                <th>Size</th>
+                                <th>Color</th>
+                                <th>Stock</th>
+                                <th style="text-align: right;">Sale Price</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Dynamic content (no actions) -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Winter Collection Page -->
+            <div id="wintercollection-page" class="page-content" style="display: none;">
+                <header class="page-header">
+                    <h1>Winter Collection</h1>
+                    <div style="display: flex; gap: 1rem;">
+                        <div style="width: 250px;">
+                            <input type="text" id="wintercollection-search" placeholder="Search winter collection...">
+                        </div>
+                    </div>
+                </header>
+
+                <div class="table-container">
+                    <table id="wintercollection-table">
+                        <thead>
+                            <tr>
+                                <th>Product Details</th>
+                                <th>Category / Style</th>
+                                <th colspan="3">Stock Status & Variations</th>
+                                <th style="text-align: right;">Sale Price</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Dynamic Content -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Accessories Page -->
+            <div id="accessories-page" class="page-content" style="display: none;">
+                <header class="page-header">
+                    <h1>Accessories Inventory</h1>
+                    <div style="display: flex; gap: 1rem;">
+                        <div style="width: 250px;">
+                            <input type="text" id="accessories-search" placeholder="Search accessories...">
+                        </div>
+                    </div>
+                </header>
+
+                <div class="table-container">
+                    <table id="accessories-table">
+                        <thead>
+                            <tr>
+                                <th>Accessory Info</th>
+                                <th>Type / Style</th>
+                                <th colspan="3">Stock Status & Variations</th>
+                                <th style="text-align: right;">Sale Price</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Dynamic content (no actions) -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Analytics Page -->
+            <div id="analytics-page" class="page-content" style="display: none;">
+                <header class="page-header">
+                    <div>
+                        <p style="color: var(--text-muted); font-size: 0.875rem;">Sales reporting</p>
+                        <h1>Sales Analytics</h1>
+                    </div>
+                    <div style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
+                        <div class="analytics-range-tabs" aria-label="Sales report range">
+                            <button type="button" class="analytics-range-tab active" data-analytics-range="daily">
+                                <i class="fas fa-calendar-day"></i>
+                                <span>Daily</span>
+                            </button>
+                            <button type="button" class="analytics-range-tab" data-analytics-range="weekly">
+                                <i class="fas fa-calendar-week"></i>
+                                <span>Weekly</span>
+                            </button>
+                            <button type="button" class="analytics-range-tab" data-analytics-range="monthly">
+                                <i class="fas fa-calendar-alt"></i>
+                                <span>Monthly</span>
+                            </button>
+                            <button type="button" class="analytics-range-tab" data-analytics-range="previousMonth">
+                                <i class="fas fa-calendar-minus"></i>
+                                <span>Previous</span>
+                            </button>
+                        </div>
+                        <div class="analytics-date-range" aria-label="Custom sales date range">
+                            <i class="fas fa-calendar-alt"></i>
+                            <label>
+                                <span>From</span>
+                                <input type="date" id="analytics-date-from" title="Start date">
+                            </label>
+                            <label>
+                                <span>To</span>
+                                <input type="date" id="analytics-date-to" title="End date">
+                            </label>
+                        </div>
+                        <div class="analytics-report-actions">
+                            <select id="analytics-report-range" title="Choose PDF report period">
+                                <option value="daily">Today</option>
+                                <option value="custom">Selected Range</option>
+                                <option value="weekly">This Week</option>
+                                <option value="monthly">This Month</option>
+                                <option value="previousMonth">Previous Month</option>
+                            </select>
+                            <button type="button" class="btn btn-primary" id="analytics-print-pdf-btn">
+                                <i class="fas fa-file-pdf"></i> Print PDF
+                            </button>
+                        </div>
+                    </div>
+                </header>
+
+                <section class="analytics-summary-panel">
+                    <div class="analytics-summary-copy">
+                        <div class="analytics-kicker" id="analytics-range-label">Today</div>
+                        <h2 id="analytics-range-title">Daily Sales</h2>
+                        <p id="analytics-range-subtitle">Showing sales completed today.</p>
+                    </div>
+                    <div class="analytics-summary-metrics">
+                        <div>
+                            <span>Total Sales</span>
+                            <strong id="analytic-total-revenue">Rs. 0</strong>
+                        </div>
+                        <div>
+                            <span>Orders</span>
+                            <strong id="analytic-order-count">0</strong>
+                        </div>
+                        <div>
+                            <span>Units Sold</span>
+                            <strong id="analytic-items-sold">0</strong>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Sales & Analytics Summary Table -->
+                <div class="glass-card" style="margin-top: 2rem; margin-bottom: 2rem; padding: 2rem;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; border-bottom: 1px solid var(--glass-border); padding-bottom: 0.5rem;">
+                        <div>
+                            <h3 style="font-family: 'Outfit'; margin: 0; font-size: 1.25rem; color: var(--text-main);">Sales & Analytics Summary</h3>
+                            <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0.25rem 0 0;">Compare revenue, order volume, items sold, and profit across key periods.</p>
+                        </div>
+                        <i class="fas fa-chart-bar" style="font-size: 1.5rem; color: var(--accent-primary); opacity: 0.8;"></i>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Period</th>
+                                    <th>Revenue</th>
+                                    <th>Orders</th>
+                                    <th>Items Sold</th>
+                                    <th>Net Profit</th>
+                                    <th>Margin</th>
+                                </tr>
+                            </thead>
+                            <tbody id="sales-analytics-summary-body">
+                                <!-- Dynamic rows generated by analytics.js -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="analytics-stat-grid">
+                    <div class="glass-card analytics-stat-card">
+                        <div class="stat-label">Net Profit</div>
+                        <div class="stat-value" id="analytic-total-profit" style="color: var(--accent-success);">Rs. 0</div>
+                        <div class="analytics-stat-note">Revenue after item cost</div>
+                    </div>
+                    <div class="glass-card analytics-stat-card">
+                        <div class="stat-label">Profit Margin</div>
+                        <div class="stat-value" id="analytic-margin">0%</div>
+                        <div class="analytics-stat-note">Average margin for selected range</div>
+                    </div>
+                    <div class="glass-card analytics-stat-card">
+                        <div class="stat-label">Average Order</div>
+                        <div class="stat-value" id="analytic-average-order">Rs. 0</div>
+                        <div class="analytics-stat-note">Typical bill value</div>
+                    </div>
+                    <div class="glass-card analytics-stat-card">
+                        <div class="stat-label">Low Stock Value</div>
+                        <div class="stat-value" id="analytic-loss" style="color: var(--accent-danger);">Rs. 0</div>
+                        <div class="analytics-stat-note">Cost value of low-stock inventory</div>
+                    </div>
+                </div>
+
+                <div class="analytics-insights-grid">
+                    <div class="glass-card analytics-panel">
+                        <div class="analytics-panel-header">
+                            <div>
+                                <h3>Items Sold</h3>
+                                <p>Grouped by product, color, and size</p>
+                            </div>
+                            <i class="fas fa-tshirt"></i>
+                        </div>
+                        <div id="top-sellers-list" class="analytics-list"></div>
+                    </div>
+
+                    <div class="glass-card analytics-panel">
+                        <div class="analytics-panel-header">
+                            <div>
+                                <h3>Needs Attention</h3>
+                                <p>No sales in the selected range</p>
+                            </div>
+                            <i class="fas fa-box-open"></i>
+                        </div>
+                        <div id="least-demanded-list" class="analytics-list"></div>
+                    </div>
+                </div>
+
+                <div class="analytics-detail-grid">
+                    <div class="table-container analytics-table-panel">
+                        <div class="analytics-table-header">
+                            <div>
+                                <h3>Sold Item Details</h3>
+                                <p>Every product sold in this range, including revenue and last sold date.</p>
+                            </div>
+                        </div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Item</th>
+                                    <th>Variant</th>
+                                    <th>Qty</th>
+                                    <th>Revenue</th>
+                                    <th>Profit</th>
+                                    <th>Last Sold</th>
+                                </tr>
+                            </thead>
+                            <tbody id="detailed-item-performance"></tbody>
+                        </table>
+                    </div>
+
+                    <div class="glass-card analytics-panel analytics-orders-panel">
+                        <div class="analytics-panel-header">
+                            <div>
+                                <h3>Sales Orders</h3>
+                                <p>Click a range to refresh this list.</p>
+                            </div>
+                            <i class="fas fa-receipt"></i>
+                        </div>
+                        <div id="analytics-orders-list" class="analytics-orders-list"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ledger Auth Modal -->
+            <div id="ledger-auth-overlay"
+                style="position: fixed; inset: 0; background: var(--bg-main); z-index: 20000; display: none; align-items: center; justify-content: center;">
+                <div class="glass-card"
+                    style="width: 100%; max-width: 440px; padding: 4rem 3rem; text-align: center; border: 1px solid var(--glass-border);">
+                    <div
+                        style="width: 80px; height: 80px; background: var(--bg-card-hover); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 2rem;">
+                        <i class="fas fa-lock" style="font-size: 2.5rem; color: var(--accent-primary);"></i>
+                    </div>
+                    <h2 style="margin-bottom: 0.5rem; font-family: 'Outfit'; font-weight: 800;">Secure Access</h2>
+                    <p style="color: var(--text-muted); margin-bottom: 2.5rem;">Password verification required for sales, analytics, and ledger access</p>
+
+                    <form id="ledger-auth-form">
+                        <div class="form-group" style="text-align: left; margin-bottom: 2rem;">
+                            <label
+                                style="text-transform: uppercase; letter-spacing: 0.1em; font-size: 0.7rem; font-weight: 700;">Security
+                                Key</label>
+                            <input type="password" id="ledger-password" placeholder="••••••••" required
+                                style="text-align: center; letter-spacing: 0.4rem; font-size: 1.5rem; background: var(--bg-main);">
+                        </div>
+                        <div style="display: flex; gap: 1rem;">
+                            <button type="button" class="btn btn-ghost" onclick="UI.showPage('dashboard')"
+                                style="flex: 1; border-radius: 14px; border: 1px solid var(--glass-border); color: var(--text-main);">Cancel</button>
+                            <button type="submit" class="btn btn-primary" style="flex: 2; border-radius: 14px;">Verify
+                                Key</button>
+                        </div>
+                        <button type="button" class="btn btn-ghost" id="forgot-ledger-key-btn"
+                            style="margin-top: 1.5rem; font-size: 0.8rem; width: 100%; color: var(--text-muted);">
+                            Key Recovery
+                        </button>
+                    </form>
+                    <p id="ledger-error"
+                        style="color: var(--accent-danger); font-size: 0.8rem; margin-top: 1.5rem; display: none;">
+                        Verification failed. Access denied.</p>
+                </div>
+            </div>
+
+            <!-- Admin Ledger Page -->
+            <div id="ledger-page" class="page-content" style="display: none;">
+                <header class="page-header">
+                    <div>
+                        <p style="color: var(--text-muted); font-size: 0.875rem;">Confidential</p>
+                        <h1>Master Business Ledger</h1>
+                    </div>
+                    <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+                        <input id="ledger-search" type="search" placeholder="Search ledger by name, type, color or size"
+                            style="flex: 1; min-width: 240px; padding: 0.85rem 1rem; border-radius: 12px; border: 1px solid var(--glass-border); background: var(--bg-main); color: var(--text-main);">
+
+                        <button class="btn btn-primary" data-modal="add-product-modal">
+                            <i class="fas fa-plus"></i> Add Stock
+                        </button>
+                        <div style="text-align: right;">
+                            <div class="stat-label">Est. Inventory Value</div>
+                            <div id="ledger-total-value" class="stat-value" style="font-size: 1.2rem;">Rs. 0</div>
+                        </div>
+                    </div>
+                </header>
+
+                <div class="card-grid"
+                    style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-top: 2rem; margin-bottom: 2rem;">
+                    <div class="glass-card">
+                        <div class="stat-label">Today's Revenue</div>
+                        <div class="stat-value" id="stat-today-sales" style="font-size: 1.2rem;">Rs. 0</div>
+                    </div>
+                    <div class="glass-card">
+                        <div class="stat-label">Yesterday's Sales</div>
+                        <div class="stat-value" id="stat-yesterday-sales" style="font-size: 1.2rem;">Rs. 0</div>
+                    </div>
+                    <div class="glass-card">
+                        <div class="stat-label">Most Sold (Today)</div>
+                        <div class="stat-value" id="stat-most-sold" style="font-size: 1.2rem;">-</div>
+                        <div id="stat-most-sold-qty" style="color: var(--text-muted); font-size: 0.75rem;">0 units</div>
+                    </div>
+                    <div class="glass-card">
+                        <div class="stat-label">Lifetime Revenue</div>
+                        <div class="stat-value" id="stat-revenue" style="font-size: 1.2rem;">Rs. 0</div>
+                    </div>
+                </div>
+
+                <div class="glass-card">
+                    <div style="display: flex; gap: 0.5rem; margin-bottom: 1.5rem; border-bottom: 1px solid var(--glass-border); padding-bottom: 0.5rem;">
+                        <button class="btn btn-ghost ledger-tab active" data-tab="clothing" onclick="Ledger.switchTab('clothing')">Clothing Inventory</button>
+                        <button class="btn btn-ghost ledger-tab" data-tab="accessories" onclick="Ledger.switchTab('accessories')">Accessories Inventory</button>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Item Details</th>
+                                    <th>Quantity</th>
+                                    <th>Cost Price</th>
+                                    <th>Sale Price</th>
+                                    <th>Gross Profit</th>
+                                    <th>Total Potential</th>
+                                    <th style="text-align: right;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ledger-items-list">
+                                <!-- Dynamic Content -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- POS Page -->
+            <div id="pos-page" class="page-content" style="display: none;">
+                <header class="page-header">
+                    <h1>Checkout Terminal</h1>
+                    <div style="display: flex; gap: 1rem; flex: 1; max-width: 500px;">
+                        <input type="text" id="pos-search" placeholder="Search products..."
+                            style="background: var(--bg-card);">
+                        <select id="pos-category-filter" style="width: 140px; background: var(--bg-card);">
+                            <option value="All">All</option>
+                            <optgroup label="Clothing">
+                                <option>Round Neck</option>
+                                <option>V-Neck</option>
+                                <option>Polo</option>
+                                <option>Oversized</option>
+                                <option>Shirt</option>
+                                <option>Trouser</option>
+                                <option>Tank Top</option>
+                                <option>Shorts</option>
+                            </optgroup>
+                            <optgroup label="Accessories">
+                                <option>Watches</option>
+                                <option>Belt</option>
+                                <option>Chains</option>
+                                <option>Bracelett</option>
+                                <option>Socks</option>
+                                <option>Arms Sleves</option>
+                                <option>Underwears</option>
+                                <option>Wallet</option>
+                            </optgroup>
+                        </select>
+                    </div>
+                    <div class="pos-sales-summary">
+                        <span>Today Sales</span>
+                        <strong id="pos-today-sales">Rs. 0</strong>
+                    </div>
+                </header>
+
+                <div class="pos-layout" style="display: grid; grid-template-columns: 1.6fr 1fr; gap: 2rem;">
+                    <div class="product-grid" id="pos-product-grid" style="max-height: 70vh; overflow-y: auto;">
+                        <!-- Products -->
+                    </div>
+
+                    <div class="glass-card" style="padding: 1.25rem; display: flex; flex-direction: column; max-height: 70vh;">
+                        <h3
+                            style="margin-bottom: 1rem; border-bottom: 1px solid var(--glass-border); padding-bottom: 0.5rem; font-family: 'Outfit';">
+                            Order Details</h3>
+                        <div id="cart-items"
+                            style="flex: 1; overflow-y: auto; min-height: 100px; margin-bottom: 1rem;">
+                            <!-- Cart -->
+                        </div>
+
+                        <div
+                            style="background: var(--bg-main); padding: 1rem; border-radius: 15px; border: 1px solid var(--glass-border);">
+                            <div class="total-row" style="margin-bottom: 0.25rem;">
+                                <span style="font-size: 0.9rem;">Subtotal</span>
+                                <span id="cart-subtotal" style="font-weight: 600;">Rs. 0</span>
+                            </div>
+                            <div class="total-row" id="discount-row"
+                                style="display: none; color: var(--accent-danger); margin-bottom: 0.25rem;">
+                                <span style="font-size: 0.9rem;">Discount</span>
+                                <span id="cart-discount" style="font-weight: 600;">-Rs. 0</span>
+                            </div>
+                            <div class="total-row grand-total"
+                                style="font-size: 1.25rem; margin: 0.5rem 0 1rem 0; color: var(--accent-primary); font-weight: 800;">
+                                <span>Total</span>
+                                <span id="cart-total">Rs. 0</span>
+                            </div>
+
+                            <div style="display: flex; gap: 0.75rem; margin-bottom: 1rem;">
+                                <button class="btn btn-ghost" id="add-discount-btn"
+                                    style="flex: 1; border: 1px solid var(--glass-border); color: var(--text-main); background: var(--bg-card); justify-content: center; padding: 0.5rem; font-size: 0.85rem;">
+                                    <i class="fas fa-tag" style="margin-right: 0.5rem;"></i> Discount
+                                </button>
+                            </div>
+
+                            <div id="cash-calculator" style="margin-bottom: 1rem;">
+                                <div class="form-group" style="margin-bottom: 0.5rem;">
+                                    <label style="font-size: 0.7rem;">Received Amount</label>
+                                    <input type="number" id="cash-received" placeholder="0"
+                                        style="font-size: 1.1rem; font-weight: 700; background: var(--bg-card); text-align: right; padding: 0.5rem 1rem;">
+                                </div>
+                                <div
+                                    style="display: flex; justify-content: space-between; align-items: center; padding: 0.25rem 0;">
+                                    <span style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted);">Change
+                                        to Return</span>
+                                    <span id="cash-balance"
+                                        style="font-size: 1.1rem; font-weight: 800; color: var(--accent-success);">Rs.
+                                        0</span>
+                                </div>
+                            </div>
+
+                            <button class="btn btn-primary" id="checkout-btn"
+                                style="width: 100%; height: 45px; justify-content: center; font-size: 1rem; border-radius: 12px;">
+                                <i class="fas fa-check-circle" style="margin-right: 0.5rem;"></i> Complete Sale
+                            </button>
+                            <button class="btn btn-ghost" id="pos-return-btn"
+                                style="width: 100%; height: 40px; justify-content: center; font-size: 0.9rem; border-radius: 12px; margin-top: 0.75rem; border: 1px dashed rgba(239, 68, 68, 0.25); color: var(--accent-danger); background: rgba(239, 68, 68, 0.03); display: flex; align-items: center; gap: 0.5rem;"
+                                onmouseover="this.style.background='rgba(239, 68, 68, 0.1)'"
+                                onmouseout="this.style.background='rgba(239, 68, 68, 0.03)'">
+                                <i class="fas fa-undo"></i> Return Item / Order
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Receipts Page -->
+            <div id="receipts-page" class="page-content" style="display: none;">
+                <header class="page-header">
+                    <div style="display: flex; flex-direction: column; gap: 0.25rem;">
+                        <p style="color: var(--text-muted); font-size: 0.875rem;">Premium Management</p>
+                        <h1>Receipts Vault</h1>
+                    </div>
+                    <div style="display: flex; gap: 0.75rem; align-items: center;">
+
+                        <div style="width: 250px;">
+                            <input type="text" id="receipts-search" placeholder="Search by Invoice # or Date..." style="background: var(--bg-card); margin: 0; height: 42px; font-size: 0.85rem; border-radius: 8px;">
+                        </div>
+                    </div>
+                </header>
+
+                <div class="glass-card" style="padding: 1.5rem;">
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Invoice #</th>
+                                    <th>Timestamp</th>
+                                    <th>Items Count</th>
+                                    <th>Total Amount</th>
+                                    <th>Payment Method</th>
+                                    <th style="text-align: right;">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="receipts-list">
+                                <!-- Dynamic Content -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings Page -->
+            <div id="settings-page" class="page-content" style="display: none;">
+                <header class="page-header">
+                    <h1>Settings</h1>
+                </header>
+
+                <div style="max-width: 600px;">
+                    <div class="glass-card" style="margin-bottom: 2rem;">
+                        <h3 style="margin-bottom: 1.5rem; font-family: 'Outfit';">Account Security</h3>
+                        
+                        <div style="margin-bottom: 2rem;">
+                            <label style="font-weight: 600; font-size: 0.8rem; text-transform: uppercase;">Active Session Email</label>
+                            <input type="text" id="settings-active-email" readonly style="background: rgba(255,255,255,0.02); color: var(--text-muted); cursor: not-allowed; border-style: dashed;" value="Loading...">
+                        </div>
+
+                        <form id="change-password-form">
+                            <div class="form-group">
+                                <label>Current Password</label>
+                                <input type="password" id="current-password" placeholder="Verify current password"
+                                    required>
+                            </div>
+                            <div class="form-group">
+                                <label>New Password</label>
+                                <input type="password" id="new-password" placeholder="Enter new password" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary" style="margin-bottom: 1.5rem;">Update Password</button>
+                        </form>
+
+                        <div style="border-top: 1px solid var(--glass-border); padding-top: 1.5rem;">
+                            <h4 style="margin-bottom: 0.5rem; font-size: 0.9rem;">Protected Business Pages</h4>
+                            <p style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.5;">
+                                <i class="fas fa-shield-halved" style="color: var(--accent-success); margin-right: 0.5rem;"></i>
+                                Sales, analytics, and ledger pages are protected with local password authentication. Default password is "admin" — change it above.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="glass-card">
+                        <h3 style="margin-bottom: 1.5rem; font-family: 'Outfit';">System Information</h3>
+                        <div style="display: flex; flex-direction: column; gap: 1rem;">
+                            <div style="display: flex; justify-content: space-between;">
+                                <span style="color: var(--text-muted);">Version</span>
+                                <span style="font-weight: 600;">3.0.0 (Local Only)</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between;">
+                                <span style="color: var(--text-muted);">Database</span>
+                                <span style="font-weight: 600;">Local Storage</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between;">
+                                <span style="color: var(--text-muted);">Last Backup</span>
+                                <span style="font-weight: 600;" id="last-backup-stat">Today, 2:45 PM</span>
+                            </div>
+                        </div>
+                    </div>
+
+
+
+                    <div class="glass-card" style="margin-top: 2rem; border: 1px solid rgba(239, 68, 68, 0.25);">
+                        <h3 style="margin-bottom: 1rem; font-family: 'Outfit'; color: var(--accent-danger);">Danger Zone</h3>
+                        <p style="color: var(--text-muted); font-size: 0.8rem; margin-bottom: 1.5rem; line-height: 1.6;">
+                            Permanently clear all local sales transactions, invoices, and analytics data. This action cannot be undone.
+                        </p>
+                        <button class="btn btn-ghost" id="clear-sales-analytics-btn"
+                            style="justify-content: center; border: 1px solid rgba(239, 68, 68, 0.2); color: var(--accent-danger); height: 45px; border-radius: 12px; font-weight: 600; width: 100%; transition: all 0.3s ease;">
+                            <i class="fas fa-trash-alt" style="margin-right: 0.5rem;"></i> Clear Sales & Analytics
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Edit Product Modal -->
+    <div class="modal-overlay" id="edit-product-modal">
+        <div class="modal-content">
+            <h2 style="margin-bottom: 1.5rem; font-family: 'Outfit';">Edit Product</h2>
+            <form id="edit-product-form">
+                <input type="hidden" name="id">
+                <div class="form-group">
+                    <label>Product Name</label>
+                    <input type="text" name="name" required>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label>Article Type</label>
+                        <select name="type" id="edit-article-type" onchange="updateSizeOptions('edit-size-select', this.value)">
+                            <option>V-Neck</option>
+                            <option>Round Neck</option>
+                            <option>Polo</option>
+                            <option>Oversized</option>
+                            <option>Dress Shirt</option>
+                            <option>Casual Shirt</option>
+                            <option>Jeans</option>
+                            <option>Trouser</option>
+                            <option>Tank Top</option>
+                            <option>Shorts</option>
+                            <option>Leather Jacket</option>
+                            <option>Suede Jacket</option>
+                            <option>Fur Jacket</option>
+                            <option>Puffer Jacket</option>
+                            <option>Sweater</option>
+                            <option>Half-Sleeve Sweater</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Style</label>
+                        <select name="style">
+                            <option>Plain</option>
+                            <option>Printed</option>
+                            <option>Striped</option>
+                        </select>
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label>Size</label>
+                        <select name="size" id="edit-size-select">
+                            <option>S</option>
+                            <option>M</option>
+                            <option>L</option>
+                            <option>XL</option>
+                            <option>XXL</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Color</label>
+                        <input type="text" name="color" required>
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label>Retail Price (Rs.)</label>
+                        <input type="number" name="price" required step="0.01" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Cost Price (Rs.)</label>
+                        <input type="number" name="costPrice" required step="0.01" min="0">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Quantity</label>
+                    <input type="number" name="quantity" required min="0">
+                </div>
+
+                <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+                    <button type="button" class="btn btn-ghost" onclick="UI.hideModal('edit-product-modal')"
+                        style="flex: 1; justify-content: center;">Cancel</button>
+                    <button type="submit" class="btn btn-primary" style="flex: 2; justify-content: center;">Update
+                        Product</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Master Edit Product Modal -->
+    <div class="modal-overlay" id="master-edit-product-modal">
+        <div class="modal-content">
+            <h2 style="margin-bottom: 1.5rem; font-family: 'Outfit';">Edit Product (All Variants)</h2>
+            <form id="master-edit-product-form">
+                <input type="hidden" name="productName">
+                <div class="form-group">
+                    <label>Product Name</label>
+                    <input type="text" name="name" required placeholder="Product name">
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label>Retail Price (Rs.)</label>
+                        <input type="number" name="price" required step="0.01" min="0" placeholder="0.00">
+                    </div>
+                    <div class="form-group">
+                        <label>Cost Price (Rs.)</label>
+                        <input type="number" name="costPrice" required step="0.01" min="0" placeholder="0.00">
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+                    <button type="button" class="btn btn-ghost" onclick="UI.hideModal('master-edit-product-modal')"
+                        style="flex: 1; justify-content: center;">Cancel</button>
+                    <button type="submit" class="btn btn-primary" style="flex: 2; justify-content: center;">Update All Variants</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Quick Add Stock Modal -->
+    <div class="modal-overlay" id="quick-add-stock-modal">
+        <div class="modal-content" style="max-width: 400px;">
+            <h2 style="margin-bottom: 1.5rem; font-family: 'Outfit';">Quick Add Stock</h2>
+            <form id="quick-add-stock-form">
+                <input type="hidden" name="productName">
+                
+                <div class="form-group" style="background: var(--bg-card); padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                    <div style="font-size: 0.9rem; color: var(--text-main); font-weight: 600;">Product Details</div>
+                    <div style="margin-top: 0.5rem; font-size: 0.85rem;">
+                        <div style="color: var(--text-muted); margin-bottom: 0.3rem;">Name: <span id="quick-product-name" style="color: var(--text-main); font-weight: 600;"></span></div>
+                        <div style="color: var(--text-muted); margin-bottom: 0.3rem;">Type: <span id="quick-product-type" style="color: var(--text-main); font-weight: 600;"></span></div>
+                        <div style="color: var(--text-muted);">Price: <span id="quick-product-price" style="color: var(--accent-primary); font-weight: 600;"></span></div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Color</label>
+                    <input type="text" name="color" required placeholder="e.g. Navy Blue">
+                </div>
+
+                <div class="form-group">
+                    <label>Size</label>
+                    <select name="size" id="quick-size-select" required>
+                        <option value="">Select Size</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Quantity</label>
+                    <input type="number" name="quantity" required min="1" value="1" placeholder="1">
+                </div>
+
+                <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                    <button type="button" class="btn btn-ghost" onclick="UI.hideModal('quick-add-stock-modal')"
+                        style="flex: 1; justify-content: center;">Cancel</button>
+                    <button type="submit" class="btn btn-primary" style="flex: 1; justify-content: center;">Add Stock</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="add-product-modal">
+        <div class="modal-content">
+            <h2 style="margin-bottom: 1.5rem; font-family: 'Outfit';">Add New Product</h2>
+            <form id="add-product-form">
+                <div class="form-group">
+                    <label>Product Name (e.g. Summer Tee)</label>
+                    <input type="text" name="name" id="add-product-name-input" required placeholder="Summer Tee" list="existing-products-list" autocomplete="off">
+                    <datalist id="existing-products-list"></datalist>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label>Article Type</label>
+                        <select name="type" id="add-article-type" onchange="updateSizeOptions('add-size-select', this.value)">
+                            <option>V-Neck</option>
+                            <option>Round Neck</option>
+                            <option>Polo</option>
+                            <option>Oversized</option>
+                            <option>Dress Shirt</option>
+                            <option>Casual Shirt</option>
+                            <option>Jeans</option>
+                            <option>Trouser</option>
+                            <option>Tank Top</option>
+                            <option>Shorts</option>
+                            <option>Leather Jacket</option>
+                            <option>Suede Jacket</option>
+                            <option>Fur Jacket</option>
+                            <option>Puffer Jacket</option>
+                            <option>Sweater</option>
+                            <option>Half-Sleeve Sweater</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Style</label>
+                        <select name="style">
+                            <option>Plain</option>
+                            <option>Printed</option>
+                            <option>Striped</option>
+                        </select>
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label>Size</label>
+                        <select name="size" id="add-size-select">
+                            <option>S</option>
+                            <option>M</option>
+                            <option>L</option>
+                            <option>XL</option>
+                            <option>XXL</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Color</label>
+                        <input type="text" name="color" required placeholder="e.g. Navy Blue">
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label>Retail Price (Rs.)</label>
+                        <input type="number" name="price" required step="0.01" min="0" placeholder="0.00">
+                    </div>
+                    <div class="form-group">
+                        <label>Cost Price (Rs.)</label>
+                        <input type="number" name="costPrice" required step="0.01" min="0" placeholder="0.00">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Initial Quantity</label>
+                    <input type="number" name="quantity" required min="0" value="0">
+                </div>
+                <input type="hidden" name="lowStock" value="5">
+
+                <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+                    <button type="button" class="btn btn-ghost" onclick="UI.hideModal('add-product-modal')"
+                        style="flex: 1; justify-content: center;">Cancel</button>
+                    <button type="submit" class="btn btn-primary" style="flex: 2; justify-content: center;">Save
+                        Product</button>
+                </div>
+            </form>
+        </div>
+    </div>    <!-- Discount Modal -->
+    <div class="modal-overlay" id="discount-modal">
+        <div class="modal-content" style="max-width: 400px; text-align: center;">
+            <h2 style="margin-bottom: 1.5rem; font-family: 'Outfit';">Apply Discount</h2>
+            <form id="discount-form" onsubmit="event.preventDefault(); POS.applyDiscountFromModal();">
+                <div class="form-group" style="text-align: left;">
+                    <label>Discount Percentage (%)</label>
+                    <input type="number" id="discount-input" min="0" max="100" step="0.1" required>
+                </div>
+                <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                    <button type="button" class="btn btn-ghost" onclick="UI.hideModal('discount-modal')" style="flex: 1; justify-content: center;">Cancel</button>
+                    <button type="submit" class="btn btn-primary" style="flex: 1; justify-content: center;">Apply</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Order Confirmation Modal -->
+    <div class="modal-overlay" id="order-confirmation-modal">
+        <div class="modal-content" style="max-width: 450px;">
+            <div style="text-align: center; margin-bottom: 2rem;">
+                <div
+                    style="width: 70px; height: 70px; background: rgba(22, 163, 74, 0.1); color: var(--accent-success); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; font-size: 2rem;">
+                    <i class="fas fa-receipt"></i>
+                </div>
+                <h2 style="font-family: 'Outfit';">Confirm Order</h2>
+                <p style="color: var(--text-muted);">Review details before finalizing sale</p>
+            </div>
+
+            <div id="confirmation-details"
+                style="background: var(--bg-main); border: 1px solid var(--glass-border); padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem;">
+                <!-- Dynamic Summary -->
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr; gap: 1rem;">
+                <div style="display: flex; gap: 1rem;">
+                    <button class="btn btn-ghost" onclick="UI.hideModal('order-confirmation-modal')"
+                        style="flex: 1; justify-content: center;">Cancel</button>
+                    <button class="btn btn-ghost" id="confirm-no-print-btn"
+                        style="flex: 1; justify-content: center; border: 1px solid var(--glass-border);">
+                        Confirm Only
+                    </button>
+                </div>
+                <button class="btn btn-primary" id="confirm-print-btn"
+                    style="height: 55px; justify-content: center; font-size: 1.1rem;">
+                    <i class="fas fa-print"></i> Confirm & Print Receipt
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- View Receipt Modal -->
+    <div class="modal-overlay" id="view-receipt-modal">
+        <div class="modal-content" style="max-width: 450px; padding: 2.5rem;">
+            <div id="receipt-modal-body" style="background: var(--bg-main); border: 1px solid var(--glass-border); padding: 2rem; border-radius: 12px; margin-bottom: 2rem; font-family: monospace; color: var(--text-main);">
+                <!-- Dynamic Receipt -->
+            </div>
+            <div style="display: flex; gap: 1rem;">
+                <button class="btn btn-ghost" onclick="UI.hideModal('view-receipt-modal')"
+                    style="flex: 1; justify-content: center;">Close</button>
+                <button class="btn btn-primary" id="reprint-receipt-btn"
+                    style="flex: 1; justify-content: center; height: 45px;">
+                    <i class="fas fa-print"></i> Re-print
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Return Item / Order Modal -->
+    <div class="modal-overlay" id="return-order-modal">
+        <div class="modal-content" style="max-width: 500px; padding: 2rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                <h2 style="font-family: 'Outfit'; margin: 0; font-size: 1.5rem; color: var(--text-main);">Return Item / Order</h2>
+                <button class="btn btn-ghost btn-icon" onclick="UI.hideModal('return-order-modal')" style="border-radius: 50%; width: 32px; height: 32px; min-width: auto; padding: 0;">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="form-group" style="margin-bottom: 1.5rem;">
+                <label style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.5rem; display: block;">Search Receipt</label>
+                <div style="display: flex; gap: 0.5rem;">
+                    <input type="text" id="return-search-input" placeholder="Enter Invoice ID (e.g. INV-123456)..." style="flex: 1; background: var(--bg-card); border: 1px solid var(--glass-border); color: var(--text-main); padding: 0.6rem 1rem; border-radius: 8px; font-size: 0.9rem;">
+                    <button class="btn btn-primary" id="return-search-btn" style="height: 42px; padding: 0 1.25rem; font-weight: 600; border-radius: 8px; display: flex; align-items: center; gap: 0.35rem;">
+                        <i class="fas fa-search"></i> Search
+                    </button>
+                </div>
+                <div id="return-search-error" style="color: var(--accent-danger); font-size: 0.8rem; margin-top: 0.5rem; display: none;"></div>
+                
+                <!-- Matching receipts suggestion list -->
+                <div id="return-search-results" style="margin-top: 1rem; max-height: 200px; overflow-y: auto; display: flex; flex-direction: column; gap: 0.5rem;"></div>
+            </div>
+
+            <!-- Receipt Info & Items -->
+            <div id="return-receipt-details" style="display: none; background: var(--bg-main); border: 1px solid var(--glass-border); padding: 1.25rem; border-radius: 12px; margin-bottom: 1.5rem; max-height: 300px; overflow-y: auto;">
+                <div style="font-size: 0.75rem; font-weight: 600; border-bottom: 1px dashed var(--glass-border); padding-bottom: 0.5rem; margin-bottom: 0.75rem; color: var(--text-muted); display: flex; justify-content: space-between;">
+                    <span id="return-receipt-id">Invoice: </span>
+                    <span id="return-receipt-date">Date: </span>
+                </div>
+                
+                <div id="return-receipt-items-list" style="display: flex; flex-direction: column; gap: 0.75rem;">
+                    <!-- Dynamic sale items with Return buttons -->
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                <button class="btn btn-ghost" onclick="UI.hideModal('return-order-modal')" style="flex: 1; justify-content: center; height: 42px; border-radius: 8px; border: 1px solid var(--glass-border);">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/store.js?v=4"></script>
+    <script src="js/ui.js?v=4"></script>
+    <script src="js/dashboard.js?v=4"></script>
+    <script src="js/analytics.js?v=4"></script>
+    <script src="js/ledger.js?v=4"></script>
+    <script src="js/inventory.js?v=4"></script>
+    <script src="js/wintercollection.js?v=4"></script>
+    <script src="js/accessories.js?v=4"></script>
+    <script src="js/pos.js?v=4"></script>
+    <script src="js/receipts.js?v=4"></script>
+    <script src="js/backup.js?v=4"></script>
+    <script src="js/app.js?v=4"></script>
+
+    <script>
+        // Dynamic size options based on article type
+        function updateSizeOptions(selectId, articleType, currentValue) {
+            const sizeSelect = document.getElementById(selectId);
+            if (!sizeSelect) return;
+
+            let options = [];
+
+            if (articleType === 'Dress Shirt') {
+                options = ['14', '14.5', '15', '15.5', '16', '16.5', '17', '17.5'];
+            } else if (articleType === 'Jeans') {
+                options = ['28', '30', '32', '34', '36', '38'];
+            } else {
+                options = ['S', 'M', 'L', 'XL', 'XXL'];
+            }
+
+            sizeSelect.innerHTML = options.map(o =>
+                `<option value="${o}" ${currentValue === o ? 'selected' : ''}>${o}</option>`
+            ).join('');
+        }
+
+        // When edit modal opens, sync the size dropdown to the existing article type
+        document.addEventListener('DOMContentLoaded', () => {
+            // Diagnostics
+            const updateDiag = () => {
+                try {
+                    const data = JSON.parse(localStorage.getItem('zyro_data')) || {};
+                    const prodCount = (data.inventory || []).length;
+                    const accCount = (data.accessories || []).length;
+                    
+                    const prodEl = document.getElementById('diag-prod-count');
+                    const accEl = document.getElementById('diag-acc-count');
+                    if (prodEl) prodEl.textContent = prodCount;
+                    if (accEl) accEl.textContent = accCount;
+                    
+                    console.log(`Diagnostics: ${prodCount} products, ${accCount} accessories`);
+                } catch (e) {
+                    console.error('Diag Error:', e);
+                }
+            };
+            
+            updateDiag();
+            window.addEventListener('inventoryUpdate', updateDiag);
+
+            const editTypeSelect = document.getElementById('edit-article-type');
+            if (editTypeSelect) {
+                // Trigger size update whenever edit modal becomes visible
+                const editModal = document.getElementById('edit-product-modal');
+                if (editModal) {
+                    const observer = new MutationObserver(() => {
+                        if (editModal.classList.contains('active')) {
+                            const currentSize = document.querySelector('#edit-product-form [name="size"]')?.value;
+                            updateSizeOptions('edit-size-select', editTypeSelect.value, currentSize);
+                        }
+                    });
+                    observer.observe(editModal, { attributes: true, attributeFilter: ['class'] });
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>

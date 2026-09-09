@@ -1,0 +1,16 @@
+id,name,type,style,base_price,base_cost_price,low_stock_threshold
+"d9cb8ffd-0a5f-46f6-b513-ec2481baf957","Zyro Signature Tee","Round Neck","Plain",1500,900,10
+"89b202cf-a705-4f44-89c3-9bb9e45fd77d","Urban Comfort","V-Neck","Plain",1200,700,5
+"7df7375e-5e00-40e8-8b87-c9109b26bf26","Street Style Polo","Polo","Striped",2500,1500,5
+"eab5bf3a-a05a-457f-afbe-9517ce598131","Casual Oversized","Oversized","Printed",3200,2000,10
+"eeec1983-4272-47bf-899b-43787583cc5b","Essential V-Neck","V-Neck","Plain",1100,650,5
+"4e63a3f3-b9be-4480-9301-eb45dd680024","Drop Needle Button Shirt","Shirt","Plain",3800,2000,5
+"add28c69-d6de-423b-b7d0-60049a721d4e","Drop Needle Polo Shirt","Polo","Plain",3500,1800,5
+"86dbaa39-0c2b-4533-8f3d-1810fd78dd4d","Cotton Zip Polo","Polo","Plain",3600,1900,5
+"578b2957-2ddf-479f-acd0-45227b7a2556","Knitted T-Shirt","Round Neck","Plain",3200,1600,5
+"d9527c60-bb1b-4b44-9b40-196246970c44","Straight Fit Trouser","Trouser","Plain",4500,2400,5
+"1b91cfac-7b17-493c-bd9f-e8f1af8b3aa7","Terry Baggy Trouser","Trouser","Plain",4800,2600,5
+"8f848d6e-d63e-4f39-943f-01ec6497c09b","Tank Top","Tank Top","Plain",1800,900,5
+"968484cb-59e1-489d-9b56-74f30b8af31b","Regular Tee","Round Neck","Plain",2800,1400,5
+"e169abcb-6ba5-4765-b426-43fd6c1c3fdc","Linen Trouser","Trouser","Plain",4200,2200,5
+"f08090b4-b68e-44b5-8cec-c6107bd1b82f","Linen Shirt Full Sleeves","Shirt","Plain",3900,2100,5

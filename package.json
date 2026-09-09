@@ -1,0 +1,39 @@
+{
+  "name": "demo-shop-pos",
+  "version": "1.0.0",
+  "description": "Demo Shop Premium Retail POS",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --win portable"
+  },
+  "build": {
+    "appId": "com.demoshop.retailpos",
+    "productName": "Demo Shop Retail POS",
+    "directories": {
+      "app": "desktop-app"
+    },
+    "files": [
+      "main.js",
+      "index.html",
+      "css/**/*",
+      "js/**/*",
+      "assets/**/*",
+      "normalized_products.json",
+      "normalized_variants.json",
+      "DB.txt"
+    ],
+    "win": {
+      "target": "portable",
+      "signAndEditExecutable": false
+    }
+  },
+  "devDependencies": {
+    "electron": "^42.1.0",
+    "electron-builder": "^26.8.1"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.116.0",
+    "pg": "^8.23.0"
+  }
+}

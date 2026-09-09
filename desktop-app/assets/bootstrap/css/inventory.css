@@ -1,0 +1,120 @@
+ tr { height: 50px } 
+ 
+ th { 
+		border-top: 1px solid black;
+		border-bottom: 1px solid black !important;
+	}
+ 
+ input[type=search] { 
+		font-family: Nunito !important; 
+		font-size: calc(0.6vw + 0.6vh); 
+		height: 45px; 
+		width: 20vw; 
+		margin-bottom: 25px; 
+		margin-top: 5px; 
+		text-indent: 13px; 
+		border-radius: 12px !important;
+		
+ }
+ 
+ button.add_button {
+	 height: 43px;
+	 border-radius: 12px !important;
+	 font-family: Nunito !important; 
+	 font-size: calc(0.58vw + 0.58vh) !important; 
+	 width: auto; 
+	 color: black !important;
+	 font-weight: bold;
+	 border: solid 2px black !important;
+	 background-color: #ffffff !important;
+	 margin-right: 10px !important;
+	 padding-right: 25px !important;
+	 padding-left: 25px !important;
+	 background-image: none !important;
+	 -webkit-appearance: none !important;
+ }
+ 
+ button.data_button {
+	 height: 43px;
+	 border-radius: 12px !important;
+	 font-family: Nunito !important; 
+	 font-size: calc(0.58vw + 0.58vh) !important; 
+	 width: auto; 
+	 color: white !important;
+	 font-weight: bold;
+	 border: solid 2px black !important;
+	 background-color: black !important;
+	 margin-right: 10px !important;
+	 padding-right: 25px !important;
+	 padding-left: 25px !important;
+	 background-image: none !important;
+ }
+ 
+ button.data_button:hover {
+	 height: 43px;
+	 border-radius: 12px !important;
+	 font-family: Nunito !important; 
+	 font-size: calc(0.58vw + 0.58vh) !important; 
+	 width: auto; 
+	 color: white !important;
+	 font-weight: bold;
+	 border: solid 2px gray !important;
+	 background-color: gray !important;
+	 margin-right: 10px !important;
+	 padding-right: 25px !important;
+	 padding-left: 25px !important;
+	 background-image: none !important;
+ }
+ 
+ button.add_button:hover {
+	 height: 43px;
+	 border-radius: 12px !important;
+	 font-family: Nunito !important; 
+	 font-size: calc(0.58vw + 0.58vh) !important; 
+	 width: auto; 
+	 color: white !important;
+	 font-weight: bold;
+	 border: solid 2px gray !important;
+	 background-color: gray !important;
+	 margin-right: 10px !important;
+	 padding-right: 25px !important;
+	 padding-left: 25px !important;
+	 background-image: none !important;
+ }
+ 
+ button.modal_button {
+	 height: 43px;
+	 border-radius: 12px !important;
+	 font-family: Nunito !important; 
+	 font-size: calc(0.63vw + 0.63vh) !important; 
+	 width: auto; 
+	 color: white !important;
+	 font-weight: bold;
+	 border: solid 2px #e50012 !important;
+	 background-color: #e50012 !important;
+	 margin-right: 10px !important;
+	 padding-right: 25px !important;
+	 padding-left: 25px !important;
+	 background-image: none !important;
+ }
+ 
+ button.modal_button:hover {
+	 height: 43px;
+	 border-radius: 12px !important;
+	 font-family: Nunito !important; 
+	 font-size: calc(0.63vw + 0.63vh) !important; 
+	 width: auto; 
+	 color: white !important;
+	 font-weight: bold;
+	 border: solid 2px #9d000c !important;
+	 background-color: #9d000c !important;
+	 margin-right: 10px !important;
+	 padding-right: 25px !important;
+	 padding-left: 25px !important;
+	 background-image: none !important;
+ }
+
+ .menu_select_hover {
+  color: rgba(255,255,255,0.5) !important;
+  transition: 0.3s;
+ }
