@@ -284,6 +284,8 @@ const Auth = {
     applyRoleUI(role, activeShop) {
         const shopSelector = document.getElementById('global-shop-selector');
         const roleBadge = document.getElementById('sidebar-role-badge');
+        const navPos = document.getElementById('nav-pos');
+        const navReceipts = document.getElementById('nav-receipts');
 
         if (role === 'admin') {
             // Admin: show shop switcher with "All Shops" option
@@ -295,8 +297,11 @@ const Auth = {
                 roleBadge.innerHTML = '<i class="fas fa-shield-alt"></i> Admin — ' + activeShop;
                 roleBadge.style.color = 'var(--accent-primary)';
             }
+            // Admin does NOT see Checkout or Receipts
+            if (navPos) navPos.style.display = 'none';
+            if (navReceipts) navReceipts.style.display = 'none';
         } else {
-            // Employee: hide shop switcher, lock to their shop
+            // Shopkeeper: hide shop switcher, lock to their shop
             if (shopSelector) {
                 shopSelector.style.display = 'none';
             }
@@ -304,6 +309,9 @@ const Auth = {
                 roleBadge.innerHTML = '<i class="fas fa-store"></i> ' + activeShop + ' Staff';
                 roleBadge.style.color = 'var(--accent-success)';
             }
+            // Shopkeeper DOES see Checkout and Receipts
+            if (navPos) navPos.style.display = 'flex';
+            if (navReceipts) navReceipts.style.display = 'flex';
         }
 
         const navUdhaar = document.getElementById('nav-udhaar');
