@@ -101,9 +101,10 @@ create trigger on_auth_user_created
 -- 4. CATEGORIES
 -- ---------------------------------------------------------------------
 create table if not exists categories (
-  id          uuid primary key default gen_random_uuid(),
-  name        text not null unique,   -- 'iPhone', 'Android', 'Accessories', 'Covers'
-  created_at  timestamptz not null default now()
+  id           uuid primary key default gen_random_uuid(),
+  name         text not null unique,   -- 'iPhone', 'Android', 'Accessories', 'Covers'
+  is_accessory boolean not null default false,
+  created_at   timestamptz not null default now()
 );
 
 -- ---------------------------------------------------------------------
@@ -120,6 +121,7 @@ create table if not exists products (
   min_selling_price   numeric(12,2) not null check (min_selling_price >= 0),
   quantity            integer not null default 0 check (quantity >= 0),
   low_stock_threshold integer not null default 5 check (low_stock_threshold >= 0),
+  image_url           text,
   is_active           boolean not null default true,
   created_at          timestamptz not null default now(),
   updated_at          timestamptz not null default now(),

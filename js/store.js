@@ -51,7 +51,7 @@ const Store = {
                     shop_id: p.shop_id,
                     category_id: p.category_id,
                     barcode: p.model_code,
-                    image: '' // Removed
+                    image: p.image_url || ''
                 }));
 
             this.cache.accessories = allProducts
@@ -71,7 +71,7 @@ const Store = {
                     shop_id: p.shop_id,
                     category_id: p.category_id,
                     barcode: p.model_code,
-                    image: '' // Removed
+                    image: p.image_url || ''
                 }));
 
             // Fetch sales
@@ -258,6 +258,7 @@ const Store = {
             min_selling_price: item.minSellingPrice || item.costPrice,
             quantity: item.quantity,
             low_stock_threshold: item.lowStock,
+            image_url: item.image || null,
             is_active: true
         });
         if (error) console.error("Error inserting product into Supabase:", error);
@@ -268,7 +269,8 @@ const Store = {
             sale_price: item.price,
             cost_price: item.costPrice,
             quantity: item.quantity,
-            low_stock_threshold: item.lowStock
+            low_stock_threshold: item.lowStock,
+            image_url: item.image || null
         };
         const { error } = await window.supabaseClient.from('products')
             .update(updateData)
@@ -300,7 +302,8 @@ const Store = {
             cost_price: item.costPrice,
             min_selling_price: item.minSellingPrice || item.costPrice,
             quantity: item.quantity,
-            low_stock_threshold: item.lowStock
+            low_stock_threshold: item.lowStock,
+            image_url: item.image || null
         };
         const { error } = await window.supabaseClient.from('products')
             .update(updateData)
