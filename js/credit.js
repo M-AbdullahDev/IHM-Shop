@@ -11,10 +11,12 @@ const Udhaar = {
 
         try {
             // Fetch customers with their aggregated balance from view
-            const { data: customerBalances } = await window.supabaseClient.from('customer_balances').select('*');
+            const { data: customerBalances, error: cbErr } = await window.supabaseClient.from('customer_balances').select('*');
+            if (cbErr) console.error("Error fetching customer_balances:", cbErr);
             
             // Fetch all transactions
-            const { data: transactions } = await window.supabaseClient.from('udhaar_transactions').select('*').order('created_at', { ascending: false });
+            const { data: transactions, error: txErr } = await window.supabaseClient.from('udhaar_transactions').select('*').order('created_at', { ascending: false });
+            if (txErr) console.error("Error fetching udhaar_transactions:", txErr);
 
             const customersMap = {};
             
@@ -23,7 +25,7 @@ const Udhaar = {
                     id: c.customer_id,
                     name: c.name,
                     phone: c.phone,
-                    balance: parseFloat(c.balance || 0),
+                    balance: parseFloat(c.balance_due || 0),
                     transactions: []
                 };
             });
@@ -33,7 +35,7 @@ const Udhaar = {
                     customersMap[t.customer_id].transactions.push({
                         id: t.id,
                         date: t.created_at,
-                        type: t.transaction_type, // 'credit' or 'payment'
+                        type: t.type, // 'credit' or 'payment'
                         amount: parseFloat(t.amount || 0),
                         note: t.note || ''
                     });
