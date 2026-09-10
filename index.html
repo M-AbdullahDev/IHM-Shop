@@ -126,10 +126,6 @@
                     <i class="fas fa-boxes-stacked"></i>
                     <span>Product List</span>
                 </div>
-                <div class="nav-item" data-page="accessories">
-                    <i class="fas fa-gem"></i>
-                    <span>Accessories</span>
-                </div>
                 <div class="nav-item" data-page="analytics">
                     <i class="fas fa-chart-line"></i>
                     <span>Sales Analytics</span>
@@ -141,14 +137,6 @@
                 <div class="nav-item" data-page="udhaar" id="nav-udhaar">
                     <i class="fas fa-book"></i>
                     <span>Udhaar Ledger</span>
-                </div>
-                <div class="nav-item" data-page="pos">
-                    <i class="fas fa-cash-register"></i>
-                    <span>Checkout</span>
-                </div>
-                <div class="nav-item" data-page="receipts">
-                    <i class="fas fa-receipt"></i>
-                    <span>Receipts Vault</span>
                 </div>
                 <div class="nav-item" data-page="settings">
                     <i class="fas fa-cog"></i>
@@ -216,13 +204,13 @@
                         <!-- Email Group for Admin -->
                         <div class="form-group" id="login-email-group" style="text-align: left; margin-bottom: 1.25rem;">
                             <label id="login-email-label" style="text-transform: uppercase; letter-spacing: 0.1em; font-size: 0.7rem; font-weight: 700;">Admin Email</label>
-                            <input type="text" id="admin-login-email" placeholder="ihm.irfan03@gmail.com" style="background: var(--bg-main);">
+                            <input type="text" id="admin-login-email" placeholder="Enter your email" style="background: var(--bg-main);">
                             <div id="login-email-hint" style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.3rem; display: none;">Use admin email or PIN</div>
                         </div>
 
                         <div class="form-group" style="text-align: left; margin-bottom: 2rem;">
                             <label id="login-pwd-label" style="text-transform: uppercase; letter-spacing: 0.1em; font-size: 0.7rem; font-weight: 700;">Password / Admin PIN</label>
-                            <input type="password" id="admin-password" placeholder="admin@irfan or admin2468" required style="background: var(--bg-main);">
+                            <input type="password" id="admin-password" placeholder="Enter password" required style="background: var(--bg-main);">
                         </div>
                         <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; height: 55px; border-radius: 16px; font-size: 1rem;">
                             Establish Session
@@ -334,24 +322,22 @@
                     </div>
                 </div>
 
-                <div class="card-grid" style="grid-template-columns: repeat(3, 1fr);">
-                    <div class="glass-card" style="text-align: center; padding: 2.5rem;">
-                        <i class="fas fa-shield-halved"
-                            style="font-size: 2.5rem; color: var(--accent-primary); margin-bottom: 1.5rem;"></i>
-                        <h3 style="margin-bottom: 0.5rem;">Enterprise Grade</h3>
-                        <p style="font-size: 0.85rem; color: var(--text-muted);">Enterprise license active</p>
+                <!-- Shop Overview Cards -->
+                <div class="card-grid" id="dashboard-shop-cards" style="grid-template-columns: repeat(3, 1fr);">
+                    <div class="glass-card" style="text-align: center; padding: 2rem; cursor: pointer;" onclick="window.switchShop('Wholesale Shop')">
+                        <i class="fas fa-warehouse" style="font-size: 2rem; color: var(--accent-primary); margin-bottom: 1rem;"></i>
+                        <h3 style="margin-bottom: 0.5rem;">Wholesale Shop</h3>
+                        <p style="font-size: 0.85rem; color: var(--text-muted);" id="dash-wholesale-count">Loading...</p>
                     </div>
-                    <div class="glass-card" style="text-align: center; padding: 2.5rem;">
-                        <i class="fas fa-database"
-                            style="font-size: 2.5rem; color: var(--accent-primary); margin-bottom: 1.5rem;"></i>
-                        <h3 style="margin-bottom: 0.5rem;">Local Storage</h3>
-                        <p style="font-size: 0.85rem; color: var(--text-muted);">Offline-first data engine</p>
+                    <div class="glass-card" style="text-align: center; padding: 2rem; cursor: pointer;" onclick="window.switchShop('Shop 2')">
+                        <i class="fas fa-store" style="font-size: 2rem; color: var(--accent-success); margin-bottom: 1rem;"></i>
+                        <h3 style="margin-bottom: 0.5rem;">Shop 2</h3>
+                        <p style="font-size: 0.85rem; color: var(--text-muted);" id="dash-shop2-count">Loading...</p>
                     </div>
-                    <div class="glass-card" style="text-align: center; padding: 2.5rem;">
-                        <i class="fas fa-fingerprint"
-                            style="font-size: 2.5rem; color: var(--accent-primary); margin-bottom: 1.5rem;"></i>
-                        <h3 style="margin-bottom: 0.5rem;">Master Secure</h3>
-                        <p style="font-size: 0.85rem; color: var(--text-muted);">Ledger data protected</p>
+                    <div class="glass-card" style="text-align: center; padding: 2rem; cursor: pointer;" onclick="window.switchShop('Shop 3')">
+                        <i class="fas fa-store" style="font-size: 2rem; color: var(--accent-warning); margin-bottom: 1rem;"></i>
+                        <h3 style="margin-bottom: 0.5rem;">Shop 3</h3>
+                        <p style="font-size: 0.85rem; color: var(--text-muted);" id="dash-shop3-count">Loading...</p>
                     </div>
                 </div>
 
@@ -1528,7 +1514,7 @@
                 if (shopGroup) shopGroup.style.display = 'none';
                 if (emailGroup) emailGroup.style.display = 'block';
                 if (pwdLabel) pwdLabel.textContent = 'Password / Admin PIN';
-                if (pwdInput) pwdInput.placeholder = 'admin@irfan or admin2468';
+                if (pwdInput) pwdInput.placeholder = 'Enter password';
                 if (forgotBtn) forgotBtn.style.display = 'block';
             } else {
                 if (btnShopkeeper) {
@@ -1542,7 +1528,7 @@
                 if (shopGroup) shopGroup.style.display = 'block';
                 if (emailGroup) emailGroup.style.display = 'none';
                 if (pwdLabel) pwdLabel.textContent = 'Shop PIN / Password';
-                if (pwdInput) pwdInput.placeholder = 'Enter PIN (default: shop1234)';
+                if (pwdInput) pwdInput.placeholder = 'Enter Shop PIN';
                 if (forgotBtn) forgotBtn.style.display = 'none';
             }
         };
