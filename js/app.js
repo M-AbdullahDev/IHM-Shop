@@ -305,7 +305,13 @@ const Auth = {
             if (navReceipts) navReceipts.style.display = 'none';
             if (navAttention) navAttention.style.display = 'flex';
             if (navDashboard) navDashboard.style.display = 'flex';
-            if (navLedger) navLedger.style.display = 'flex';
+            if (navLedger) {
+                navLedger.style.display = 'flex';
+                const ledgerText = document.getElementById('nav-ledger-text');
+                const ledgerTitle = document.getElementById('ledger-page-title');
+                if (ledgerText) ledgerText.textContent = 'Admin Ledger';
+                if (ledgerTitle) ledgerTitle.textContent = 'Admin Ledger';
+            }
         } else {
             // Shopkeeper: hide shop switcher, lock to their shop
             if (shopSelector) {
@@ -320,6 +326,12 @@ const Auth = {
             if (navReceipts) navReceipts.style.display = 'flex';
             if (navAttention) navAttention.style.display = 'none';
             if (navDashboard) navDashboard.style.display = 'none';
+            if (navLedger) {
+                const ledgerText = document.getElementById('nav-ledger-text');
+                const ledgerTitle = document.getElementById('ledger-page-title');
+                if (ledgerText) ledgerText.textContent = 'Product Ledger';
+                if (ledgerTitle) ledgerTitle.textContent = 'Product Ledger';
+            }
         }
 
         const navUdhaar = document.getElementById('nav-udhaar');

@@ -115,25 +115,32 @@ const Ledger = {
         const entered = (pwdInput ? pwdInput.value.trim() : '');
 
         const adminPin = localStorage.getItem('zyro_admin_pin') || 'admin2468';
-        const shopPin = localStorage.getItem('zyro_shop_pin') || 'shop1234';
+        const role = localStorage.getItem('user_role') || 'admin';
+        
+        let isValid = false;
+        
+        if (role === 'admin') {
+            if (entered === adminPin) {
+                isValid = true;
+                sessionStorage.setItem('unlocked_with_admin_pin', 'true');
+            }
+        } else {
+            // Shopkeeper Profile
+            if (entered === '1234') {
+                isValid = true;
+                sessionStorage.setItem('unlocked_with_admin_pin', 'false');
+            }
+        }
 
-        if (entered === adminPin) {
+        if (isValid) {
             this.isAuthenticated = true;
-            sessionStorage.setItem('unlocked_with_admin_pin', 'true');
-            this.hideAuth();
-            this.renderProtectedPage(this.pendingPage);
-            if (pwdInput) pwdInput.value = '';
-            if (errorMsg) errorMsg.style.display = 'none';
-        } else if (entered === shopPin) {
-            this.isAuthenticated = true;
-            sessionStorage.setItem('unlocked_with_admin_pin', 'false');
             this.hideAuth();
             this.renderProtectedPage(this.pendingPage);
             if (pwdInput) pwdInput.value = '';
             if (errorMsg) errorMsg.style.display = 'none';
         } else {
             if (errorMsg) {
-                errorMsg.textContent = 'Verification failed: Incorrect PIN. Use Admin PIN or Shop PIN.';
+                errorMsg.textContent = role === 'admin' ? 'Verification failed: Incorrect Admin PIN.' : 'Verification failed: Incorrect PIN (Hint: 1234).';
                 errorMsg.style.display = 'block';
             }
             if (pwdInput) pwdInput.value = '';
