@@ -308,11 +308,11 @@ const Ledger = {
                                 <span style="font-size: 0.65rem; color: var(--text-muted); display: block; text-transform: uppercase;">Sale</span>
                                 <span style="font-weight: 600; color: var(--text-main);">${UI.formatCurrency(price)}</span>
                             </div>
-                            ${allowedCost ? `
                             <div>
                                 <span style="font-size: 0.65rem; color: var(--text-muted); display: block; text-transform: uppercase;">Min Price</span>
-                                <span style="font-weight: 600; color: var(--accent-warning);">${UI.formatCurrency(v.minSellingPrice || cost)}</span>
+                                <span style="font-weight: 600; color: var(--accent-warning);">${UI.formatCurrency(v.minSellingPrice || (allowedCost ? cost : 0))}</span>
                             </div>
+                            ${allowedCost ? `
                             <div>
                                 <span style="font-size: 0.65rem; color: var(--text-muted); display: block; text-transform: uppercase;">Margin</span>
                                 <span style="font-weight: 600; color: var(--accent-success);">${UI.formatCurrency(grossProfit)}</span>
