@@ -118,7 +118,7 @@
             </div>
 
             <nav>
-                <div class="nav-item active" data-page="dashboard">
+                <div class="nav-item active" data-page="dashboard" id="nav-dashboard">
                     <i class="fas fa-th-large"></i>
                     <span>Dashboard</span>
                 </div>
@@ -130,9 +130,9 @@
                     <i class="fas fa-chart-line"></i>
                     <span>Sales Analytics</span>
                 </div>
-                <div class="nav-item" data-page="ledger">
+                <div class="nav-item" data-page="ledger" id="nav-ledger">
                     <i class="fas fa-file-invoice-dollar"></i>
-                    <span>Admin Ledger</span>
+                    <span>Product Ledger</span>
                 </div>
                 <div class="nav-item" data-page="attention" id="nav-attention">
                     <i class="fas fa-exclamation-circle" style="color: var(--accent-warning);"></i>
@@ -333,8 +333,7 @@
             <div id="dashboard-page" class="page-content" style="display: none;">
                 <header class="page-header">
                     <div>
-                        <p style="color: var(--text-muted); font-size: 0.875rem;">Premium Management,</p>
-                        <h1>Where Tech Meets Innovation</h1>
+                        <p style="color: var(--text-muted); font-size: 0.875rem;">IHM Mobile,</p>
                     </div>
                     <div id="sync-status" class="status-indicator">
                         <i class="fas fa-circle" style="color: var(--accent-success);"></i>
@@ -352,22 +351,12 @@
                         </div>
                         <h2
                             style="font-size: 3.5rem; line-height: 1.1; margin-bottom: 1.5rem; font-family: 'Outfit'; font-weight: 800; letter-spacing: -2px; color: #ffffff !important; text-transform: none;">
-                            Premium Mobiles,<br>Unbeatable Prices
+                            IHM Mobiles,<br>Unbeatable Prices
                         </h2>
                         <p
                             style="color: rgba(255,255,255,0.7); max-width: 480px; line-height: 1.8; font-size: 1.1rem; border-left: 2px solid rgba(255,255,255,0.2); padding-left: 1.5rem; font-style: italic;">
                             Your ultimate destination for the latest smartphones, premium covers, and top-tier accessories.
                         </p>
-                        <div style="margin-top: 2.5rem; display: flex; gap: 1.5rem; align-items: center;">
-                            <button class="btn btn-primary" onclick="UI.showPage('pos')"
-                                style="padding: 1rem 2.5rem; border-radius: 14px; border: 1px solid transparent; height: 55px; justify-content: center;">
-                                <i class="fas fa-shopping-bag" style="margin-right: 0.5rem;"></i> New Sale
-                            </button>
-                            <button class="btn btn-ghost" onclick="UI.showPage('inventory')"
-                                style="border: 1px solid rgba(255,255,255,0.1); color: white !important; padding: 1rem 2.5rem; border-radius: 14px; height: 55px; justify-content: center;">
-                                <i class="fas fa-list" style="margin-right: 0.5rem;"></i> Browse List
-                            </button>
-                        </div>
                     </div>
 
                     <div
@@ -377,7 +366,7 @@
                             style="position: absolute; width: 300px; height: 300px; border-radius: 50%; background: #ffffff; filter: blur(120px); opacity: 0.05; animation: float 8s infinite ease-in-out;">
                         </div>
                         <div
-                            style="position: absolute; inset: 0; background: url('https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&q=80&w=1000') center/cover; opacity: 0.2; mix-blend-mode: luminosity;">
+                            style="position: absolute; inset: 0; background: url('assets/ihm_logo.jpg') center/cover; opacity: 0.4; mix-blend-mode: luminosity;">
                         </div>
                         <i class="fas fa-mobile-alt"
                             style="font-size: 12rem; color: var(--accent-primary); opacity: 0.03; transform: rotate(15deg);"></i>
@@ -403,7 +392,7 @@
                     </div>
                 </div>
 
-                <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem;">
+                <div style="display: grid; grid-template-columns: 1fr; gap: 2rem;">
                     <div class="glass-card" style="padding: 2rem;">
                         <h3 style="margin-bottom: 1.5rem; font-family: 'Outfit';">Recent Transactions</h3>
                         <div class="table-container">
@@ -420,23 +409,6 @@
                                     <!-- Dynamic content -->
                                 </tbody>
                             </table>
-                        </div>
-                    </div>
-                    <div class="glass-card">
-                        <h3 style="margin-bottom: 1.5rem; font-family: 'Outfit';">Quick Actions</h3>
-                        <div style="display: flex; flex-direction: column; gap: 1rem;">
-                            <button class="btn btn-ghost" style="justify-content: flex-start; width: 100%;"
-                                onclick="UI.showPage('pos')">
-                                <i class="fas fa-shopping-cart"></i> New Sale
-                            </button>
-                            <button class="btn btn-ghost" style="justify-content: flex-start; width: 100%;"
-                                onclick="Backup.exportToCSV()">
-                                <i class="fas fa-download"></i> Export Data
-                            </button>
-                            <button class="btn btn-ghost" style="justify-content: flex-start; width: 100%;"
-                                onclick="window.print()">
-                                <i class="fas fa-file-pdf"></i> Daily Report
-                            </button>
                         </div>
                     </div>
                 </div>
@@ -1029,11 +1001,11 @@
                                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem;">
                                     <div class="form-group">
                                         <label style="font-size: 0.75rem; text-transform: uppercase;">Admin PIN (Full Cost Access)</label>
-                                        <input type="text" id="setting-admin-pin" placeholder="admin2468" required style="font-weight: 700; letter-spacing: 0.1em; background: var(--bg-main);">
+                                        <input type="password" id="setting-admin-pin" placeholder="admin2468" required style="font-weight: 700; letter-spacing: 0.1em; background: var(--bg-main);">
                                     </div>
                                     <div class="form-group">
                                         <label style="font-size: 0.75rem; text-transform: uppercase;">Shop PIN (Cost Hidden)</label>
-                                        <input type="text" id="setting-shop-pin" placeholder="shop1234" required style="font-weight: 700; letter-spacing: 0.1em; background: var(--bg-main);">
+                                        <input type="password" id="setting-shop-pin" placeholder="shop1234" required style="font-weight: 700; letter-spacing: 0.1em; background: var(--bg-main);">
                                     </div>
                                 </div>
                                 <button type="submit" class="btn btn-primary" style="border-radius: 10px;">Save Security PINs</button>

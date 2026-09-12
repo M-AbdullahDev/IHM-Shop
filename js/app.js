@@ -284,9 +284,11 @@ const Auth = {
     applyRoleUI(role, activeShop) {
         const shopSelector = document.getElementById('global-shop-selector');
         const roleBadge = document.getElementById('sidebar-role-badge');
+        const navDashboard = document.getElementById('nav-dashboard');
         const navPos = document.getElementById('nav-pos');
         const navReceipts = document.getElementById('nav-receipts');
         const navAttention = document.getElementById('nav-attention');
+        const navLedger = document.getElementById('nav-ledger');
 
         if (role === 'admin') {
             // Admin: show shop switcher with "All Shops" option
@@ -302,6 +304,8 @@ const Auth = {
             if (navPos) navPos.style.display = 'none';
             if (navReceipts) navReceipts.style.display = 'none';
             if (navAttention) navAttention.style.display = 'flex';
+            if (navDashboard) navDashboard.style.display = 'flex';
+            if (navLedger) navLedger.style.display = 'flex';
         } else {
             // Shopkeeper: hide shop switcher, lock to their shop
             if (shopSelector) {
@@ -311,19 +315,17 @@ const Auth = {
                 roleBadge.innerHTML = '<i class="fas fa-store"></i> ' + activeShop + ' Staff';
                 roleBadge.style.color = 'var(--accent-success)';
             }
-            // Shopkeeper DOES see Checkout and Receipts
+            // Shopkeeper DOES see Checkout and Receipts, but not Dashboard/Attention
             if (navPos) navPos.style.display = 'flex';
             if (navReceipts) navReceipts.style.display = 'flex';
             if (navAttention) navAttention.style.display = 'none';
+            if (navDashboard) navDashboard.style.display = 'none';
+            if (navLedger) navLedger.style.display = 'none';
         }
 
         const navUdhaar = document.getElementById('nav-udhaar');
         if (navUdhaar) {
-            if (role === 'admin' || activeShop === 'Wholesale Shop') {
-                navUdhaar.style.display = 'flex';
-            } else {
-                navUdhaar.style.display = 'none';
-            }
+            navUdhaar.style.display = 'flex';
         }
     },
 
@@ -378,7 +380,12 @@ document.addEventListener('DOMContentLoaded', () => {
     Attention.init();
 
     // Show Default Page
-    UI.showPage('dashboard');
+    const initRole = localStorage.getItem('user_role') || 'admin';
+    if (initRole === 'admin') {
+        UI.showPage('dashboard');
+    } else {
+        UI.showPage('inventory');
+    }
     
     console.log('IHM Shop System Initialized');
 });
