@@ -369,16 +369,21 @@ const Store = {
         const userId = userData.user?.id;
         
         // Insert Sale
-        await window.supabaseClient.from('sales').insert({
+        const { error: saleError } = await window.supabaseClient.from('sales').insert({
             id: sale.id,
             shop_id: shopId,
             cashier_id: userId,
             customer_id: customerId,
-            subtotal: sale.total,
-            discount_amount: sale.discount,
-            final_amount: sale.netTotal,
+            subtotal: sale.subtotal || sale.total,
+            discount_amount: sale.discount || 0,
+            final_amount: sale.netTotal || sale.total,
             payment_method: sale.paymentMethod || 'cash'
         });
+        
+        if (saleError) {
+            console.error("Supabase Sale Insert Error:", saleError);
+            throw saleError;
+        }
         
         // Insert Sale Items
         const saleItems = sale.items.map(i => {
@@ -394,7 +399,11 @@ const Store = {
             };
         });
         
-        await window.supabaseClient.from('sale_items').insert(saleItems);
+        const { error: itemsError } = await window.supabaseClient.from('sale_items').insert(saleItems);
+        if (itemsError) {
+            console.error("Supabase Sale Items Insert Error:", itemsError);
+            throw itemsError;
+        }
         // Triggers in the database will handle stock reduction securely.
     },
 
