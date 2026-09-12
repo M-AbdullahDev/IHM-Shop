@@ -1334,9 +1334,11 @@ img {
     
     /* Show logo and text in sidebar when open on mobile */
     aside .logo-text,
+    aside .nav-item span,
     aside .sidebar-text,
     aside #sync-indicator {
         display: block !important;
+        opacity: 1 !important;
     }
     
     aside select#global-shop-selector {
