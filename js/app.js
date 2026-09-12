@@ -346,6 +346,7 @@ const Auth = {
             localStorage.removeItem('zyro_admin_email');
             localStorage.removeItem('user_role');
             localStorage.removeItem('active_shop');
+            sessionStorage.removeItem('unlocked_with_admin_pin');
             const activeEmailInput = document.getElementById('settings-active-email');
             if (activeEmailInput) activeEmailInput.value = 'Loading...';
             this.showLogin();
