@@ -1157,6 +1157,10 @@
                     <label>Min Selling Price (Rs.)</label>
                     <input type="number" name="minSellingPrice" step="0.01" min="0" placeholder="e.g. 1000">
                 </div>
+                <div class="form-group">
+                    <label>Product Image (Updates All Variants)</label>
+                    <input type="file" name="image" id="master-edit-product-image" accept="image/*" style="padding: 0.5rem; border: 1px solid var(--glass-border); border-radius: 8px; width: 100%; color: var(--text-main);">
+                </div>
 
                 <div style="display: flex; gap: 1rem; margin-top: 1rem;">
                     <button type="button" class="btn btn-ghost" onclick="UI.hideModal('master-edit-product-modal')"
@@ -1173,17 +1177,24 @@
             <h2 style="margin-bottom: 1.5rem; font-family: 'Outfit';">Quick Add Stock</h2>
             <form id="quick-add-stock-form">
                 <input type="hidden" name="productName">
-                
-                <div class="form-group" style="background: var(--bg-card); padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
-                    <div style="font-size: 0.9rem; color: var(--text-main); font-weight: 600;">Product Details</div>
-                    <div style="margin-top: 0.5rem; font-size: 0.85rem;">
-                        <div style="color: var(--text-muted); margin-bottom: 0.3rem;">Name: <span id="quick-product-name" style="color: var(--text-main); font-weight: 600;"></span></div>
-                        <div style="color: var(--text-muted); margin-bottom: 0.3rem;">Type: <span id="quick-product-type" style="color: var(--text-main); font-weight: 600;"></span></div>
-                        <div style="color: var(--text-muted);">Price: <span id="quick-product-price" style="color: var(--accent-primary); font-weight: 600;"></span></div>
+                <div class="form-group">
+                    <label>Product Name</label>
+                    <input type="text" name="name" id="quick-add-name-input" required>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label>Retail Price</label>
+                        <input type="number" name="price" id="quick-add-price-input" required step="0.01" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Cost Price</label>
+                        <input type="number" name="costPrice" id="quick-add-cost-input" step="0.01" min="0">
                     </div>
                 </div>
-
                 <div class="form-group">
+                    <label>Min Selling Price</label>
+                    <input type="number" name="minSellingPrice" id="quick-add-min-input" step="0.01" min="0">
+                </div>
                     <label>Color</label>
                     <input type="text" name="color" required placeholder="e.g. Navy Blue">
                 </div>
@@ -1529,20 +1540,20 @@
     <script src="js/qrcode.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/supabase-client.js"></script>
-    <script src="js/store.js?v=9"></script>
-    <script src="js/ui.js?v=9"></script>
-    <script src="js/dashboard.js?v=9"></script>
-    <script src="js/analytics.js?v=9"></script>
-    <script src="js/ledger.js?v=9"></script>
-    <script src="js/inventory.js?v=9"></script>
-    <script src="js/wintercollection.js?v=9"></script>
-    <script src="js/accessories.js?v=9"></script>
-    <script src="js/pos.js?v=9"></script>
-    <script src="js/credit.js?v=9"></script>
-    <script src="js/receipts.js?v=9"></script>
-    <script src="js/backup.js?v=9"></script>
-    <script src="js/attention.js?v=9"></script>
-    <script src="js/app.js?v=9"></script>
+    <script src="js/store.js?v=10"></script>
+    <script src="js/ui.js?v=10"></script>
+    <script src="js/dashboard.js?v=10"></script>
+    <script src="js/analytics.js?v=10"></script>
+    <script src="js/ledger.js?v=10"></script>
+    <script src="js/inventory.js?v=10"></script>
+    <script src="js/wintercollection.js?v=10"></script>
+    <script src="js/accessories.js?v=10"></script>
+    <script src="js/pos.js?v=10"></script>
+    <script src="js/credit.js?v=10"></script>
+    <script src="js/receipts.js?v=10"></script>
+    <script src="js/backup.js?v=10"></script>
+    <script src="js/attention.js?v=10"></script>
+    <script src="js/app.js?v=10"></script>
 
     <script>
         // Dynamic size options based on article type

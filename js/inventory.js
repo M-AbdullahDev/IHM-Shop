@@ -523,7 +523,7 @@ const Inventory = {
         UI.showModal('master-edit-product-modal');
     },
 
-    handleMasterEditProduct(form) {
+    async handleMasterEditProduct(form) {
         const originalName = form.elements['productName'].value;
         const newName = form.elements['name'].value;
         const newPrice = parseFloat(form.elements['price'].value) || 0;
@@ -536,6 +536,12 @@ const Inventory = {
 
         if (products.length === 0) return;
 
+        const imageFile = form.elements['image'] ? form.elements['image'].files[0] : null;
+        let base64Image = null;
+        if (imageFile) {
+            base64Image = await this.compressImage(imageFile);
+        }
+
         // Update all variants of this product
         products.forEach(product => {
             const updates = {
@@ -543,6 +549,9 @@ const Inventory = {
                 price: newPrice,
                 minSellingPrice: newMinSellingPrice
             };
+            if (base64Image) {
+                updates.image = base64Image;
+            }
             if (!isEmployee) {
                 updates.costPrice = newCostPrice;
             }
@@ -570,10 +579,29 @@ const Inventory = {
         form.reset();
         form.elements['productName'].value = name;
 
-        // Show product details
-        document.getElementById('quick-product-name').textContent = name;
-        document.getElementById('quick-product-type').textContent = firstProduct.type;
-        document.getElementById('quick-product-price').textContent = UI.formatCurrency(firstProduct.price);
+        // Show product details (read-only labels)
+        const nameLabel = document.getElementById('quick-product-name');
+        if (nameLabel) nameLabel.textContent = name;
+        const typeLabel = document.getElementById('quick-product-type');
+        if (typeLabel) typeLabel.textContent = firstProduct.type;
+        const priceLabel = document.getElementById('quick-product-price');
+        if (priceLabel) priceLabel.textContent = UI.formatCurrency(firstProduct.price);
+
+        // Populate new inputs
+        if (form.elements['name']) form.elements['name'].value = name;
+        if (form.elements['price']) form.elements['price'].value = firstProduct.price || 0;
+        if (form.elements['minSellingPrice']) form.elements['minSellingPrice'].value = firstProduct.minSellingPrice || 0;
+        
+        const isEmployee = window.isCostPriceAllowed ? !window.isCostPriceAllowed() : (localStorage.getItem('user_role') !== 'admin');
+        if (form.elements['costPrice']) {
+            if (!isEmployee) {
+                form.elements['costPrice'].value = firstProduct.costPrice || 0;
+                form.elements['costPrice'].parentElement.style.display = 'block';
+            } else {
+                form.elements['costPrice'].value = '';
+                form.elements['costPrice'].parentElement.style.display = 'none';
+            }
+        }
 
         // Populate size options based on product type
         const sizeSelect = document.getElementById('quick-size-select');
@@ -605,20 +633,26 @@ const Inventory = {
 
     handleQuickAddStock(form) {
         const productName = form.elements['productName'].value;
+        const inputName = form.elements['name'] ? form.elements['name'].value : productName;
         const color = form.elements['color'].value;
         const size = form.elements['size'].value;
         const quantity = parseInt(form.elements['quantity'].value) || 0;
+        const price = form.elements['price'] ? (parseFloat(form.elements['price'].value) || 0) : 0;
+        const minSellingPrice = form.elements['minSellingPrice'] ? (parseFloat(form.elements['minSellingPrice'].value) || 0) : 0;
+        
+        const isEmployee = window.isCostPriceAllowed ? !window.isCostPriceAllowed() : (localStorage.getItem('user_role') !== 'admin');
+        const costPrice = isEmployee ? undefined : (form.elements['costPrice'] ? (parseFloat(form.elements['costPrice'].value) || 0) : 0);
 
         const allProducts = [...Store.getFilteredInventory(), ...Store.getFilteredAccessories()];
         const firstProduct = allProducts.find(p => p.name === productName);
         if (!firstProduct) return;
 
-        let newName = productName;
+        let newName = inputName;
         if (color || (size && size !== 'Default')) {
             const parts = [];
             if (color) parts.push(color);
             if (size && size !== 'Default') parts.push(size);
-            newName = `${productName} - ${parts.join(' ')}`;
+            newName = `${inputName} - ${parts.join(' ')}`;
         }
 
         // Create new variant
@@ -629,8 +663,9 @@ const Inventory = {
             color: color,
             size: size,
             quantity: quantity,
-            price: firstProduct.price,
-            costPrice: firstProduct.costPrice,
+            price: price || firstProduct.price,
+            minSellingPrice: minSellingPrice || firstProduct.minSellingPrice,
+            costPrice: isEmployee ? firstProduct.costPrice : (costPrice || firstProduct.costPrice),
             lowStock: firstProduct.lowStock || 5
         };
 
