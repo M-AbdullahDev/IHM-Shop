@@ -648,20 +648,64 @@ window.Inventory = Inventory;
 let currentQR = null;
 
 window.showQRCode = (id, name, size, color) => {
-    const container = document.getElementById('qr-code-container');
-    container.innerHTML = '';
-    
-    currentQR = new QRCode(container, {
-        text: id,
-        width: 200,
-        height: 200,
-        colorDark : "#000000",
-        colorLight : "#ffffff",
-        correctLevel : QRCode.CorrectLevel.H
-    });
+    let modal = document.getElementById('qr-modal');
+    if (!modal) {
+        // Dynamically create the modal if it doesn't exist in DOM
+        const modalHtml = `
+        <div id="qr-modal" class="modal-overlay" style="display: none;">
+            <div class="glass-card" style="width: 100%; max-width: 400px; padding: 2rem; position: relative;">
+                <button class="btn-icon" onclick="UI.hideModal('qr-modal')" style="position: absolute; top: 1rem; right: 1rem;">
+                    <i class="fas fa-times"></i>
+                </button>
+                <h2 style="margin-bottom: 0.5rem;">Product QR Code</h2>
+                <div id="qr-product-name" style="font-weight: 700; margin-bottom: 0.25rem;"></div>
+                <div id="qr-product-details" style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.5rem;"></div>
+                
+                <div style="background: white; padding: 1.5rem; border-radius: 12px; display: inline-block; margin-bottom: 1.5rem;">
+                    <div id="qr-code-container"></div>
+                </div>
+                
+                <button class="btn btn-primary" onclick="window.printQRCode()" style="width: 100%; justify-content: center;">
+                    <i class="fas fa-print"></i> Print QR Code
+                </button>
+            </div>
+        </div>`;
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
+    }
 
-    document.getElementById('qr-product-name').textContent = name;
-    document.getElementById('qr-product-details').textContent = `Size: ${size} | Color: ${color}`;
+    const container = document.getElementById('qr-code-container');
+    if (container) {
+        container.innerHTML = '';
+        
+        try {
+            currentQR = new QRCode(container, {
+                text: id,
+                width: 200,
+                height: 200,
+                colorDark : "#000000",
+                colorLight : "#ffffff",
+                correctLevel : QRCode.CorrectLevel.H
+            });
+        } catch (e) {
+            console.error("QR Code Error:", e);
+        }
+    }
+    
+    const nameEl = document.getElementById('qr-product-name');
+    if (nameEl) nameEl.textContent = name;
+    
+    const detailsEl = document.getElementById('qr-product-details');
+    if (detailsEl) {
+        const safeSize = (size && size !== 'undefined' && size !== 'null') ? size : '';
+        const safeColor = (color && color !== 'undefined' && color !== 'null') ? color : '';
+        
+        let detailsText = '';
+        if (safeSize) detailsText += `Size: ${safeSize}`;
+        if (safeSize && safeColor) detailsText += ` | `;
+        if (safeColor) detailsText += `Color: ${safeColor}`;
+        
+        detailsEl.textContent = detailsText;
+    }
     
     UI.showModal('qr-modal');
 };
