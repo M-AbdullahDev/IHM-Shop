@@ -94,6 +94,21 @@
 <body>
 
     <div id="app">
+        <!-- Mobile Header (Hidden on Desktop) -->
+        <div id="mobile-header" style="display: none; position: sticky; top: 0; justify-content: space-between; align-items: center; padding: 1rem 1.5rem; background: var(--bg-card); border-bottom: 1px solid var(--glass-border); z-index: 150;">
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <div class="logo-icon" style="width: 32px; height: 32px; border-radius: 8px; background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); display: flex; align-items: center; justify-content: center;">
+                    <i class="fas fa-store" style="color: white; font-size: 0.9rem;"></i>
+                </div>
+                <div style="font-family: 'Outfit'; font-weight: 800; font-size: 1.1rem; letter-spacing: -0.5px; color: var(--text-main);">
+                    IHM Mobile
+                </div>
+            </div>
+            <button id="hamburger-menu-btn" style="background: none; border: none; color: var(--text-main); font-size: 1.5rem; cursor: pointer; padding: 0.25rem;">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+
         <!-- Sidebar Navigation -->
         <aside>
             <div class="logo" style="justify-content: space-between; width: 100%;">
@@ -852,7 +867,11 @@
                         <!-- Products -->
                     </div>
 
-                    <div class="glass-card" style="padding: 1.25rem; display: flex; flex-direction: column; max-height: 70vh;">
+                    <div class="glass-card pos-cart" id="pos-cart-container" style="padding: 1.25rem; display: flex; flex-direction: column; max-height: 70vh; z-index: 101;">
+                        <!-- Mobile cart close button -->
+                        <button class="mobile-only" onclick="document.getElementById('pos-cart-container').classList.remove('active')" style="background:none; border:none; color: var(--text-main); font-size: 1.5rem; position: absolute; top: 1rem; right: 1rem; cursor: pointer; display: none;">
+                            <i class="fas fa-times"></i>
+                        </button>
                         <h3
                             style="margin-bottom: 1rem; border-bottom: 1px solid var(--glass-border); padding-bottom: 0.5rem; font-family: 'Outfit';">
                             Order Details</h3>
@@ -922,6 +941,12 @@
                         </div>
                     </div>
                 </div>
+                
+                <!-- Mobile FAB for Cart -->
+                <button class="mobile-only" id="mobile-cart-toggle" onclick="document.getElementById('pos-cart-container').classList.add('active')" style="display: none; position: fixed; bottom: 2rem; right: 2rem; border-radius: 50px; padding: 1rem 1.5rem; background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); color: white; border: none; box-shadow: 0 4px 15px rgba(0,0,0,0.3); z-index: 90; cursor: pointer; align-items: center; justify-content: center;">
+                    <i class="fas fa-shopping-cart" style="font-size: 1.25rem;"></i> 
+                    <span style="margin-left: 0.5rem; font-weight: 700; font-family: 'Outfit';">View Cart</span>
+                </button>
             </div>
 
             <!-- Receipts Page -->
@@ -1587,6 +1612,38 @@
                 if (forgotBtn) forgotBtn.style.display = 'none';
             }
         };
+
+        // Mobile Hamburger Menu Logic
+        document.addEventListener('DOMContentLoaded', () => {
+            const hamburgerBtn = document.getElementById('hamburger-menu-btn');
+            const aside = document.querySelector('aside');
+            
+            if (hamburgerBtn && aside) {
+                hamburgerBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    aside.classList.toggle('mobile-active');
+                });
+                
+                // Close sidebar when clicking outside
+                document.addEventListener('click', (e) => {
+                    if (window.innerWidth <= 768 && aside.classList.contains('mobile-active')) {
+                        if (!aside.contains(e.target) && e.target !== hamburgerBtn) {
+                            aside.classList.remove('mobile-active');
+                        }
+                    }
+                });
+                
+                // Close sidebar when a nav item is clicked on mobile
+                const navItems = aside.querySelectorAll('.nav-item');
+                navItems.forEach(item => {
+                    item.addEventListener('click', () => {
+                        if (window.innerWidth <= 768) {
+                            aside.classList.remove('mobile-active');
+                        }
+                    });
+                });
+            }
+        });
     </script>
 </body>
 
