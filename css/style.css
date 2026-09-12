@@ -1386,8 +1386,11 @@ img {
 
     div[style*="grid-template-columns: 2fr 1fr"],
     div[style*="grid-template-columns: 1fr 350px"],
-    div[style*="grid-template-columns: 1.5fr 1fr"] {
+    div[style*="grid-template-columns: 1.5fr 1fr"],
+    div[style*="grid-template-columns: 1.6fr 1fr"],
+    .pos-layout {
         grid-template-columns: 1fr !important;
+        gap: 1rem !important;
     }
 
     .table-container {
@@ -1421,11 +1424,13 @@ img {
     .glass-card[style*="max-width: 500px"],
     .glass-card[style*="max-width: 600px"],
     .glass-card[style*="max-width: 800px"],
-    .glass-card[style*="max-width: 900px"] {
+    .glass-card[style*="max-width: 900px"],
+    .modal-content {
         max-width: 95% !important;
         margin: 10px auto;
         max-height: 90vh;
         overflow-y: auto;
+        padding: 1.5rem !important; /* Reduce the huge 3rem padding on mobile */
     }
 
     /* POS Cart toggle button for mobile */

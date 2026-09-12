@@ -226,16 +226,20 @@ const POS = {
                 const imageSrc = product.variants[0].image;
 
                 return `
-                    <div class="product-card" data-product-name="${safeName}" style="position: relative; display: flex; flex-direction: column; justify-content: space-between; min-height: 255px; padding: 1.25rem; border-radius: 16px;">
+                    <div class="product-card" data-product-name="${safeName}" style="position: relative; display: flex; flex-direction: column; justify-content: space-between; min-height: 255px; padding: 0; border-radius: 16px; overflow: hidden;">
                         <div>
-                            ${imageSrc ? `<div style="text-align: center; margin-bottom: 0.5rem;"><img src="${imageSrc}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px;"></div>` : ''}
-                            <div style="font-weight: 700; font-size: 0.95rem; color: var(--text-main); margin-bottom: 0.25rem;">${product.name}</div>
-                            <div style="color: var(--text-muted); font-size: 0.75rem; margin-bottom: 0.75rem;">
-                                ${product.type}
+                            <div style="width: 100%; height: 140px; background: ${imageSrc ? 'transparent' : 'var(--bg-card-hover)'}; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+                                ${imageSrc ? `<img src="${imageSrc}" style="width: 100%; height: 100%; object-fit: cover;">` : `<i class="fas fa-mobile-alt" style="font-size: 3rem; color: var(--text-muted); opacity: 0.3;"></i>`}
+                            </div>
+                            <div style="padding: 0.75rem 1.25rem 0;">
+                                <div style="font-weight: 700; font-size: 0.95rem; color: var(--text-main); margin-bottom: 0.25rem;">${product.name}</div>
+                                <div style="color: var(--text-muted); font-size: 0.75rem; margin-bottom: 0.75rem;">
+                                    ${product.type}
+                                </div>
                             </div>
                         </div>
 
-                        <div>
+                        <div style="padding: 0 1.25rem 1.25rem;">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
                                 <span style="font-weight: 800; color: var(--text-main); font-size: 1.05rem;">${UI.formatCurrency(product.price)}</span>
                             </div>
@@ -689,7 +693,7 @@ const POS = {
                 <div style="flex: 1; min-width: 0;">
                     <div style="font-weight: 700; font-size: 0.9rem; color: var(--text-main);">${item.name}</div>
                     <div style="font-size: 0.75rem; color: var(--text-muted);">
-                        Size: ${item.size} | ${item.color} | Qty: ${item.quantity}
+                        ${item.size && item.size !== 'undefined' ? `Size: ${item.size} | ` : ''}${item.color && item.color !== 'undefined' ? `Color: ${item.color} | ` : ''}Qty: ${item.quantity}
                     </div>
                 </div>
                 <div style="display: flex; align-items: center; gap: 0.75rem; flex-shrink: 0;">
@@ -832,7 +836,7 @@ const POS = {
                 <td style="padding: 4px 0; text-align: left; padding-left: 4px;">
                     <div style="font-weight: 700; font-size: 11px; color: #000; font-family: Arial, sans-serif; line-height: 1.15;">${item.name}</div>
                     <div style="font-size: 9px; color: #555; margin-top: 1px; font-family: Arial, sans-serif; font-weight: bold;">
-                        ${item.size} / ${item.color.toUpperCase()}
+                        ${item.size && item.size !== 'undefined' ? item.size : 'N/A'} / ${item.color && item.color !== 'undefined' ? String(item.color).toUpperCase() : 'N/A'}
                     </div>
                 </td>
                 <td style="padding: 4px 0; text-align: right; font-weight: 700; font-size: 11px; width: 100px; font-family: Arial, sans-serif; color: #000;">

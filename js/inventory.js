@@ -109,16 +109,18 @@ const Inventory = {
             return `
                 <tr>
                     <td>
-                        <div style="display: flex; align-items: center; gap: 0.75rem;">
-                            ${imageSrc ? `<img src="${imageSrc}" style="width: 40px; height: 40px; object-fit: cover; border-radius: 8px; flex-shrink: 0;">` : ''}
-                            <div style="font-weight: 700; font-size: 0.95rem; color: var(--text-main);">
-                                ${product.name}
-                                <span style="font-size: 0.75rem; font-weight: 600; color: var(--text-muted); margin-left: 0.5rem; background: var(--bg-card-hover); padding: 0.1rem 0.4rem; border-radius: 4px; border: 1px solid var(--glass-border);">
-                                    Total: ${totalQty}
-                                </span>
+                        <div style="display: flex; align-items: center; gap: 1rem;">
+                            ${imageSrc ? `<div style="width: 70px; height: 70px; border-radius: 12px; overflow: hidden; background: var(--bg-card-hover); flex-shrink: 0;"><img src="${imageSrc}" style="width: 100%; height: 100%; object-fit: cover;"></div>` : `<div style="width: 70px; height: 70px; border-radius: 12px; background: var(--bg-card-hover); flex-shrink: 0; display: flex; align-items: center; justify-content: center;"><i class="fas fa-mobile-alt" style="font-size: 1.5rem; color: var(--text-muted); opacity: 0.5;"></i></div>`}
+                            <div>
+                                <div style="font-weight: 700; font-size: 1rem; color: var(--text-main); margin-bottom: 0.25rem;">
+                                    ${product.name}
+                                    <span style="font-size: 0.75rem; font-weight: 600; color: var(--text-muted); margin-left: 0.5rem; background: var(--bg-card-hover); padding: 0.15rem 0.5rem; border-radius: 6px; border: 1px solid var(--glass-border);">
+                                        Total Stock: ${totalQty}
+                                    </span>
+                                </div>
                             </div>
                         </div>
-                        <div style="margin-top: 0.4rem; display: flex; gap: 0.3rem;">
+                        <div style="margin-top: 0.75rem; display: flex; gap: 0.5rem; padding-left: 86px;">
                             <button class="btn btn-ghost" style="color: var(--accent-success); font-size: 0.7rem; padding: 0.15rem 0.4rem; height: auto; border: 1px solid rgba(16, 185, 129, 0.25); border-radius: 4px; display: inline-flex; align-items: center; gap: 0.25rem;" onclick="window.quickAddStock('${product.name}')" title="Quick Add Color & Size">
                                 <i class="fas fa-plus" style="font-size: 0.65rem;"></i> Quick Add
                             </button>
