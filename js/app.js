@@ -286,6 +286,7 @@ const Auth = {
         const roleBadge = document.getElementById('sidebar-role-badge');
         const navPos = document.getElementById('nav-pos');
         const navReceipts = document.getElementById('nav-receipts');
+        const navAttention = document.getElementById('nav-attention');
 
         if (role === 'admin') {
             // Admin: show shop switcher with "All Shops" option
@@ -300,6 +301,7 @@ const Auth = {
             // Admin does NOT see Checkout or Receipts
             if (navPos) navPos.style.display = 'none';
             if (navReceipts) navReceipts.style.display = 'none';
+            if (navAttention) navAttention.style.display = 'flex';
         } else {
             // Shopkeeper: hide shop switcher, lock to their shop
             if (shopSelector) {
@@ -312,6 +314,7 @@ const Auth = {
             // Shopkeeper DOES see Checkout and Receipts
             if (navPos) navPos.style.display = 'flex';
             if (navReceipts) navReceipts.style.display = 'flex';
+            if (navAttention) navAttention.style.display = 'none';
         }
 
         const navUdhaar = document.getElementById('nav-udhaar');
@@ -372,6 +375,7 @@ document.addEventListener('DOMContentLoaded', () => {
     POS.init();
     Udhaar.init();
     Receipts.init();
+    Attention.init();
 
     // Show Default Page
     UI.showPage('dashboard');
