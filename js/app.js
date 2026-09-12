@@ -320,7 +320,6 @@ const Auth = {
             if (navReceipts) navReceipts.style.display = 'flex';
             if (navAttention) navAttention.style.display = 'none';
             if (navDashboard) navDashboard.style.display = 'none';
-            if (navLedger) navLedger.style.display = 'none';
         }
 
         const navUdhaar = document.getElementById('nav-udhaar');
