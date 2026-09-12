@@ -652,7 +652,7 @@ window.showQRCode = (id, name, size, color) => {
     if (!modal) {
         // Dynamically create the modal if it doesn't exist in DOM
         const modalHtml = `
-        <div id="qr-modal" class="modal-overlay" style="display: none;">
+        <div id="qr-modal" class="modal-overlay">
             <div class="glass-card" style="width: 100%; max-width: 400px; padding: 2rem; position: relative;">
                 <button class="btn-icon" onclick="UI.hideModal('qr-modal')" style="position: absolute; top: 1rem; right: 1rem;">
                     <i class="fas fa-times"></i>
