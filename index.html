@@ -1103,15 +1103,15 @@
                         <label>Retail Price (Rs.)</label>
                         <input type="number" name="price" required step="0.01" min="0">
                     </div>
-                    <div class="form-group" id="edit-product-cost-group">
+                    <div class="form-group admin-only" id="edit-product-cost-group">
                         <label>Cost Price (Rs.)</label>
-                        <input type="number" name="costPrice" id="edit-product-cost-input" required step="0.01" min="0">
+                        <input type="number" name="costPrice" id="edit-product-cost-input" step="0.01" min="0">
                     </div>
                 </div>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-                    <div class="form-group" id="edit-product-min-group">
+                    <div class="form-group admin-only" id="edit-product-min-group">
                         <label>Min Selling Price</label>
-                        <input type="number" name="minSellingPrice" id="edit-product-min-input" required min="0">
+                        <input type="number" name="minSellingPrice" id="edit-product-min-input" min="0">
                     </div>
                     <div class="form-group">
                         <label>Quantity</label>
@@ -1148,9 +1148,9 @@
                         <label>Retail Price (Rs.)</label>
                         <input type="number" name="price" required step="0.01" min="0" placeholder="0.00">
                     </div>
-                    <div class="form-group">
+                    <div class="form-group admin-only">
                         <label>Cost Price (Rs.)</label>
-                        <input type="number" name="costPrice" required step="0.01" min="0" placeholder="0.00">
+                        <input type="number" name="costPrice" step="0.01" min="0" placeholder="0.00">
                     </div>
                 </div>
 
@@ -1242,9 +1242,9 @@
                         <label>Retail Price (Rs.)</label>
                         <input type="number" name="price" required step="0.01" min="0" placeholder="0.00">
                     </div>
-                    <div class="form-group">
+                    <div class="form-group admin-only">
                         <label>Cost Price (Rs.)</label>
-                        <input type="number" name="costPrice" required step="0.01" min="0" placeholder="0.00">
+                        <input type="number" name="costPrice" step="0.01" min="0" placeholder="0.00">
                     </div>
                 </div>
                 <div style="display: grid; grid-template-columns: 1fr; gap: 1rem;">

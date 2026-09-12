@@ -1224,6 +1224,10 @@ img {
     display: none !important;
 }
 
+body.non-admin .admin-only {
+    display: none !important;
+}
+
 /* --- Mobile Responsiveness --- */
 @media (max-width: 768px) {
     #app {

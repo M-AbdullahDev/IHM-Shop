@@ -326,6 +326,13 @@ const Auth = {
         if (navUdhaar) {
             navUdhaar.style.display = 'flex';
         }
+
+        // Toggle admin-only UI elements
+        if (window.isCostPriceAllowed && !window.isCostPriceAllowed()) {
+            document.body.classList.add('non-admin');
+        } else {
+            document.body.classList.remove('non-admin');
+        }
     },
 
     async handleLogout() {
