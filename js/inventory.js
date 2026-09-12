@@ -601,9 +601,17 @@ const Inventory = {
         const firstProduct = allProducts.find(p => p.name === productName);
         if (!firstProduct) return;
 
+        let newName = productName;
+        if (color || (size && size !== 'Default')) {
+            const parts = [];
+            if (color) parts.push(color);
+            if (size && size !== 'Default') parts.push(size);
+            newName = `${productName} - ${parts.join(' ')}`;
+        }
+
         // Create new variant
         const newVariant = {
-            name: productName,
+            name: newName,
             type: firstProduct.type,
             style: firstProduct.style,
             color: color,
@@ -614,14 +622,11 @@ const Inventory = {
             lowStock: firstProduct.lowStock || 5
         };
 
-        if (firstProduct.id && firstProduct.id.includes('_')) {
-            // It's from clothing or accessories
-            const isAccessory = Store.getFilteredAccessories().find(a => a.name === productName);
-            if (isAccessory) {
-                Store.addAccessory(newVariant);
-            } else {
-                Store.addProduct(newVariant);
-            }
+        const isAccessory = Store.getFilteredAccessories().find(a => a.name === productName);
+        if (isAccessory) {
+            Store.addAccessory(newVariant);
+        } else {
+            Store.addProduct(newVariant);
         }
 
         // Clear form to prevent accidental resubmit
