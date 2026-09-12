@@ -348,16 +348,14 @@ const Inventory = {
         form.elements['type'].value = item.type;
 
         form.elements['price'].value = item.price;
+        form.elements['minSellingPrice'].value = item.minSellingPrice || 0;
+        
         if (!isEmployee) {
             form.elements['costPrice'].value = item.costPrice || (item.price * 0.6);
-            form.elements['minSellingPrice'].value = item.minSellingPrice || item.costPrice || 0;
             form.elements['costPrice'].setAttribute('required', 'true');
-            form.elements['minSellingPrice'].setAttribute('required', 'true');
         } else {
             form.elements['costPrice'].value = '';
-            form.elements['minSellingPrice'].value = '';
             form.elements['costPrice'].removeAttribute('required');
-            form.elements['minSellingPrice'].removeAttribute('required');
         }
         form.elements['quantity'].value = item.quantity;
         form.elements['image'].value = ''; // Reset image input
@@ -378,7 +376,7 @@ const Inventory = {
             type: formData.get('type'),
             price: parseFloat(formData.get('price')) || 0,
             costPrice: isEmployee ? undefined : (parseFloat(formData.get('costPrice')) || 0),
-            minSellingPrice: isEmployee ? undefined : (parseFloat(formData.get('minSellingPrice')) || 0),
+            minSellingPrice: parseFloat(formData.get('minSellingPrice')) || 0,
             quantity: parseInt(formData.get('quantity')) || 0
         };
         
@@ -462,7 +460,7 @@ const Inventory = {
             quantity: parseInt(formData.get('quantity')) || 0,
             price: parseFloat(formData.get('price')) || 0,
             costPrice: isEmployee ? 0 : (parseFloat(formData.get('costPrice')) || 0),
-            minSellingPrice: isEmployee ? 0 : (parseFloat(formData.get('minSellingPrice')) || 0),
+            minSellingPrice: parseFloat(formData.get('minSellingPrice')) || 0,
             image: base64Image,
             lowStock: parseInt(formData.get('lowStock') || 5)
         };
@@ -515,6 +513,7 @@ const Inventory = {
         form.elements['productName'].value = name;
         form.elements['name'].value = name;
         form.elements['price'].value = firstProduct.price;
+        form.elements['minSellingPrice'].value = firstProduct.minSellingPrice || 0;
         if (!isEmployee) {
             form.elements['costPrice'].value = firstProduct.costPrice || (firstProduct.price * 0.6);
         } else {
@@ -528,6 +527,7 @@ const Inventory = {
         const originalName = form.elements['productName'].value;
         const newName = form.elements['name'].value;
         const newPrice = parseFloat(form.elements['price'].value) || 0;
+        const newMinSellingPrice = parseFloat(form.elements['minSellingPrice'].value) || 0;
         const isEmployee = window.isCostPriceAllowed ? !window.isCostPriceAllowed() : (localStorage.getItem('user_role') !== 'admin');
         const newCostPrice = isEmployee ? undefined : (parseFloat(form.elements['costPrice'].value) || 0);
 
@@ -540,7 +540,8 @@ const Inventory = {
         products.forEach(product => {
             const updates = {
                 name: newName,
-                price: newPrice
+                price: newPrice,
+                minSellingPrice: newMinSellingPrice
             };
             if (!isEmployee) {
                 updates.costPrice = newCostPrice;
