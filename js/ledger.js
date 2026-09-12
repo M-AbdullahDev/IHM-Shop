@@ -426,10 +426,17 @@ const Ledger = {
         const form = document.getElementById('master-edit-product-form');
         if (!form) return;
 
+        const isEmployee = window.isCostPriceAllowed ? !window.isCostPriceAllowed() : (localStorage.getItem('user_role') !== 'admin');
+
         form.elements['productName'].value = name;
         form.elements['name'].value = name;
         form.elements['price'].value = firstProduct.price;
-        form.elements['costPrice'].value = firstProduct.costPrice || (firstProduct.price * 0.6);
+        form.elements['minSellingPrice'].value = firstProduct.minSellingPrice || 0;
+        if (!isEmployee) {
+            form.elements['costPrice'].value = firstProduct.costPrice || (firstProduct.price * 0.6);
+        } else {
+            form.elements['costPrice'].value = '';
+        }
 
         UI.showModal('master-edit-product-modal');
     },
@@ -438,7 +445,9 @@ const Ledger = {
         const originalName = form.elements['productName'].value;
         const newName = form.elements['name'].value;
         const newPrice = parseFloat(form.elements['price'].value) || 0;
-        const newCostPrice = parseFloat(form.elements['costPrice'].value) || 0;
+        const newMinSellingPrice = parseFloat(form.elements['minSellingPrice'].value) || 0;
+        const isEmployee = window.isCostPriceAllowed ? !window.isCostPriceAllowed() : (localStorage.getItem('user_role') !== 'admin');
+        const newCostPrice = isEmployee ? undefined : (parseFloat(form.elements['costPrice'].value) || 0);
 
         const allProducts = [...Store.getFilteredInventory(), ...Store.getFilteredAccessories()];
         const products = allProducts.filter(p => p.name === originalName);
@@ -447,11 +456,15 @@ const Ledger = {
 
         // Update all variants of this product
         products.forEach(product => {
-            Store.updateProduct(product.id, {
+            const updates = {
                 name: newName,
                 price: newPrice,
-                costPrice: newCostPrice
-            });
+                minSellingPrice: newMinSellingPrice
+            };
+            if (!isEmployee) {
+                updates.costPrice = newCostPrice;
+            }
+            Store.updateProduct(product.id, updates);
         });
 
         UI.hideModal('master-edit-product-modal');
