@@ -902,7 +902,7 @@ const POS = {
                         <div style="text-align: center; font-size: 10px; line-height: 1.3; margin-bottom: 6px; font-family: Arial, sans-serif; color: #000;">
                             <div style="font-weight: 700; font-size: 13px; margin-bottom: 2px;">IHM Shop - ${sale.shop || 'Shop 1'}</div>
                             <div style="font-weight: 600;">Main Street, City Center</div>
-                            <div style="font-size: 9.5px; font-weight: 500; margin-top: 2px;">info@ihmshop.com | 0300-0000000</div>
+                            <div style="font-size: 9.5px; font-weight: 500; margin-top: 2px;">ihm.irfan@gmail.com | 03128106948</div>
                         </div>
 
                         <!-- Customer Details Block -->
