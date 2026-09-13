@@ -361,6 +361,7 @@ const Auth = {
             sessionStorage.removeItem('unlocked_with_admin_pin');
             const activeEmailInput = document.getElementById('settings-active-email');
             if (activeEmailInput) activeEmailInput.value = 'Loading...';
+            if (typeof UI !== 'undefined') UI.hideModal('settings-modal');
             this.showLogin();
         }
     },
