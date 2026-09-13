@@ -16,20 +16,33 @@ const Store = {
                 return;
             }
 
-            // Fetch shops
-            const { data: shops } = await window.supabaseClient.from('shops').select('*');
+            // Fetch all initial data concurrently to significantly speed up load time
+            const [
+                { data: shops },
+                { data: categories },
+                { data: products },
+                { data: sales }
+            ] = await Promise.all([
+                window.supabaseClient.from('shops').select('*'),
+                window.supabaseClient.from('categories').select('*'),
+                window.supabaseClient.from('products').select(`
+                    *,
+                    category:categories(name, is_accessory),
+                    shop:shops(name)
+                `),
+                window.supabaseClient.from('sales').select(`
+                    *,
+                    shop:shops(name),
+                    customer:customers(name, phone),
+                    items:sale_items(
+                        *,
+                        product:products(name)
+                    )
+                `).order('created_at', { ascending: false }).limit(200)
+            ]);
+
             this.cache.shops = shops || [];
-
-            // Fetch categories
-            const { data: categories } = await window.supabaseClient.from('categories').select('*');
             this.cache.categories = categories || [];
-
-            // Fetch products
-            const { data: products } = await window.supabaseClient.from('products').select(`
-                *,
-                category:categories(name, is_accessory),
-                shop:shops(name)
-            `);
             
             const allProducts = products || [];
             
@@ -74,17 +87,6 @@ const Store = {
                     image: p.image_url || ''
                 }));
 
-            // Fetch sales
-            const { data: sales } = await window.supabaseClient.from('sales').select(`
-                *,
-                shop:shops(name),
-                customer:customers(name, phone),
-                items:sale_items(
-                    *,
-                    product:products(name)
-                )
-            `).order('created_at', { ascending: false });
-
             this.cache.sales = (sales || []).map(s => ({
                 id: s.id,
                 displayId: s.id.substring(0,8).toUpperCase(),
@@ -92,7 +94,7 @@ const Store = {
                 total: s.subtotal || 0,
                 discount: s.discount_amount || 0,
                 netTotal: s.final_amount || 0,
-                paid: s.final_amount || 0, // Advanced schema doesn't track paid separate from final currently unless payment is split
+                paid: s.final_amount || 0, 
                 paymentMethod: s.payment_method,
                 shop: s.shop ? s.shop.name : 'Unknown Shop',
                 shop_id: s.shop_id,
@@ -108,9 +110,75 @@ const Store = {
             }));
 
             console.log("Supabase Store Initialized.");
+            this.setupRealtime();
             window.dispatchEvent(new CustomEvent('inventoryUpdate'));
         } catch (e) {
             console.error("Store init error:", e);
+        }
+    },
+
+    setupRealtime() {
+        if (this._realtimeInitialized) return;
+        this._realtimeInitialized = true;
+
+        if (!window.supabaseClient) return;
+
+        window.supabaseClient
+            .channel('public:products')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, payload => {
+                console.log('Realtime Product change received!', payload);
+                // The most reliable way to handle realtime data consistency in a simple app 
+                // is to trigger a lightweight refetch of the specific changed record, or just let 
+                // the user know new data is available. Given the architecture, a full re-init might be 
+                // heavy, so we will dispatch an event that UI can listen to. 
+                // For a robust MVP, we simply re-init Store silently to fetch the latest state.
+                this.silentReInit();
+            })
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'sales' }, payload => {
+                console.log('Realtime Sale change received!', payload);
+                this.silentReInit();
+            })
+            .subscribe();
+    },
+
+    async silentReInit() {
+        try {
+            // Fetch everything again silently to ensure complete consistency without blocking UI
+            const [ { data: products }, { data: sales } ] = await Promise.all([
+                window.supabaseClient.from('products').select(`*, category:categories(name, is_accessory), shop:shops(name)`),
+                window.supabaseClient.from('sales').select(`*, shop:shops(name), customer:customers(name, phone), items:sale_items(*, product:products(name))`).order('created_at', { ascending: false }).limit(200)
+            ]);
+
+            const allProducts = products || [];
+            
+            this.cache.inventory = allProducts
+                .filter(p => !p.category || !p.category.is_accessory)
+                .map(p => ({
+                    id: p.id, name: p.name, color: p.color, size: '', type: p.category ? p.category.name : '',
+                    price: p.sale_price || 0, costPrice: p.cost_price || 0, minSellingPrice: p.min_selling_price || 0,
+                    quantity: p.quantity || 0, lowStock: p.low_stock_threshold || 5, shop: p.shop ? p.shop.name : 'Wholesale Shop',
+                    shop_id: p.shop_id, category_id: p.category_id, barcode: p.model_code, image: p.image_url || ''
+                }));
+
+            this.cache.accessories = allProducts
+                .filter(p => p.category && p.category.is_accessory)
+                .map(p => ({
+                    id: p.id, name: p.name, color: '', size: '', type: p.category ? p.category.name : '',
+                    price: p.sale_price || 0, costPrice: p.cost_price || 0, minSellingPrice: p.min_selling_price || 0,
+                    quantity: p.quantity || 0, lowStock: p.low_stock_threshold || 5, shop: p.shop ? p.shop.name : 'Wholesale Shop',
+                    shop_id: p.shop_id, category_id: p.category_id, barcode: p.model_code, image: p.image_url || ''
+                }));
+
+            this.cache.sales = (sales || []).map(s => ({
+                id: s.id, displayId: s.id.substring(0,8).toUpperCase(), timestamp: s.created_at, total: s.subtotal || 0,
+                discount: s.discount_amount || 0, netTotal: s.final_amount || 0, paid: s.final_amount || 0, paymentMethod: s.payment_method,
+                shop: s.shop ? s.shop.name : 'Unknown Shop', shop_id: s.shop_id, customer_id: s.customer_id, customerName: s.customer ? s.customer.name : 'Walk-in',
+                items: s.items.map(i => ({ id: i.product_id, name: i.product ? i.product.name : 'Unknown', price: i.unit_sale_price || 0, quantity: i.quantity || 0, subtotal: i.line_total || 0 }))
+            }));
+
+            window.dispatchEvent(new CustomEvent('inventoryUpdate'));
+        } catch (err) {
+            console.error("Silent sync failed", err);
         }
     },
 
@@ -261,8 +329,12 @@ const Store = {
             image_url: item.image || null,
             is_active: true
         });
-        if (error) console.error("Error inserting product into Supabase:", error);
-    },
+        if (error) {
+            console.error("Error inserting product into Supabase:", error);
+            if (window.UI) window.UI.showToast("Failed to save product to database. Please check your connection.", "error");
+            this.silentReInit();
+            throw error;
+        },
     
     async _asyncUpdateProduct(item) {
         const updateData = {
@@ -275,8 +347,12 @@ const Store = {
         const { error } = await window.supabaseClient.from('products')
             .update(updateData)
             .eq('id', item.id);
-        if (error) console.error("Error updating product in Supabase:", error);
-    },
+        if (error) {
+            console.error("Error updating product in Supabase:", error);
+            if (window.UI) window.UI.showToast("Failed to update product in database.", "error");
+            this.silentReInit();
+            throw error;
+        },
 
     updateProduct(id, updatedData) {
         let isInventory = true;
@@ -308,15 +384,29 @@ const Store = {
         const { error } = await window.supabaseClient.from('products')
             .update(updateData)
             .eq('id', item.id);
-        if (error) console.error("Error updating product full in Supabase:", error);
-    },
+        if (error) {
+            console.error("Error updating product full in Supabase:", error);
+            if (window.UI) window.UI.showToast("Failed to update product in database.", "error");
+            this.silentReInit();
+            throw error;
+        },
 
     deleteProduct(id) {
         this.cache.inventory = this.cache.inventory.filter(p => p.id !== id);
         this.cache.accessories = this.cache.accessories.filter(a => a.id !== id);
         
-        window.supabaseClient.from('products').delete().eq('id', id).then(() => {
-            console.log("Deleted product from Supabase");
+        window.supabaseClient.from('products').delete().eq('id', id).then(({ error }) => {
+            if (error) {
+                console.error("Error deleting product from Supabase", error);
+                if (window.UI) window.UI.showToast("Failed to delete product.", "error");
+                this.silentReInit();
+            } else {
+                console.log("Deleted product from Supabase");
+            }
+        }).catch(err => {
+            console.error(err);
+            if (window.UI) window.UI.showToast("Failed to delete product.", "error");
+            this.silentReInit();
         });
     },
 
@@ -341,7 +431,11 @@ const Store = {
             }
         });
 
-        this._asyncInsertSale(sale).catch(console.error);
+        this._asyncInsertSale(sale).catch(err => {
+            console.error(err);
+            if (window.UI) window.UI.showToast("Failed to record sale to database.", "error");
+            this.silentReInit();
+        });
         return sale;
     },
     
@@ -429,9 +523,17 @@ const Store = {
         // Note: Real db triggers would handle restoring stock upon sale voiding
         window.supabaseClient.from('sales').update({ status: 'voided' }).eq('id', saleId)
             .then(({ error }) => {
-                if (error) console.error("Error voiding sale in Supabase:", error);
+                if (error) {
+                    console.error("Error voiding sale in Supabase:", error);
+                    if (window.UI) window.UI.showToast("Failed to void sale.", "error");
+                    this.silentReInit();
+                }
             })
-            .catch(console.error);
+            .catch(err => {
+                console.error(err);
+                if (window.UI) window.UI.showToast("Failed to void sale.", "error");
+                this.silentReInit();
+            });
         return true;
     }
 };
