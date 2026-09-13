@@ -392,7 +392,6 @@ document.addEventListener('DOMContentLoaded', () => {
     Analytics.init();
     Ledger.init();
     Inventory.init();
-    WinterCollection.init();
     Accessories.init();
     POS.init();
     Udhaar.init();

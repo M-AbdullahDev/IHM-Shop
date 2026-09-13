@@ -226,26 +226,26 @@ const POS = {
                 const imageSrc = product.variants[0].image;
 
                 return `
-                    <div class="product-card" data-product-name="${safeName}" style="position: relative; display: flex; flex-direction: column; justify-content: space-between; min-height: 255px; padding: 0; border-radius: 16px; overflow: hidden;">
+                    <div class="product-card" data-product-name="${safeName}" style="position: relative; display: flex; flex-direction: column; justify-content: space-between; height: 100%; padding: 0; border-radius: 16px; overflow: hidden;">
                         <div>
-                            <div style="width: 100%; height: 140px; background: ${imageSrc ? 'transparent' : 'var(--bg-card-hover)'}; display: flex; align-items: center; justify-content: center; overflow: hidden;">
-                                ${imageSrc ? `<img src="${imageSrc}" style="width: 100%; height: 100%; object-fit: cover;">` : `<i class="fas fa-mobile-alt" style="font-size: 3rem; color: var(--text-muted); opacity: 0.3;"></i>`}
+                            <div style="width: 100%; height: 120px; background: ${imageSrc ? 'transparent' : 'var(--bg-card-hover)'}; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+                                ${imageSrc ? `<img src="${imageSrc}" style="width: 100%; height: 100%; object-fit: cover;">` : `<i class="fas fa-mobile-alt" style="font-size: 2.5rem; color: var(--text-muted); opacity: 0.3;"></i>`}
                             </div>
-                            <div style="padding: 0.75rem 1.25rem 0;">
-                                <div style="font-weight: 700; font-size: 0.95rem; color: var(--text-main); margin-bottom: 0.25rem;">${product.name}</div>
-                                <div style="color: var(--text-muted); font-size: 0.75rem; margin-bottom: 0.75rem;">
+                            <div style="padding: 0.75rem 0.75rem 0;">
+                                <div style="font-weight: 700; font-size: 0.85rem; color: var(--text-main); margin-bottom: 0.25rem; word-break: break-word;">${product.name}</div>
+                                <div style="color: var(--text-muted); font-size: 0.7rem; margin-bottom: 0.5rem;">
                                     ${product.type}
                                 </div>
                             </div>
                         </div>
 
-                        <div style="padding: 0 1.25rem 1.25rem;">
+                        <div style="padding: 0 0.75rem 0.75rem;">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                                <span style="font-weight: 800; color: var(--text-main); font-size: 1.05rem;">${UI.formatCurrency(product.price)}</span>
+                                <span style="font-weight: 800; color: var(--text-main); font-size: 0.95rem;">${UI.formatCurrency(product.price)}</span>
                             </div>
-                            <button class="btn btn-primary" style="width: 100%; border-radius: 10px; height: 36px; font-size: 0.8rem; justify-content: center; font-weight: 600;" 
+                            <button class="btn btn-primary" style="width: 100%; border-radius: 10px; height: 32px; font-size: 0.75rem; justify-content: center; font-weight: 600; padding: 0;" 
                                 onclick="POS.addSelectedToCart(this)">
-                                <i class="fas fa-plus" style="margin-right: 0.35rem; font-size: 0.7rem;"></i> Add to Order
+                                <i class="fas fa-plus" style="margin-right: 0.25rem; font-size: 0.7rem;"></i> Add
                             </button>
                         </div>
 
