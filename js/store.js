@@ -334,7 +334,8 @@ const Store = {
             if (window.UI) window.UI.showToast("Failed to save product to database. Please check your connection.", "error");
             this.silentReInit();
             throw error;
-        },
+        }
+    },
     
     async _asyncUpdateProduct(item) {
         const updateData = {
@@ -352,7 +353,8 @@ const Store = {
             if (window.UI) window.UI.showToast("Failed to update product in database.", "error");
             this.silentReInit();
             throw error;
-        },
+        }
+    },
 
     updateProduct(id, updatedData) {
         let isInventory = true;
@@ -389,7 +391,8 @@ const Store = {
             if (window.UI) window.UI.showToast("Failed to update product in database.", "error");
             this.silentReInit();
             throw error;
-        },
+        }
+    },
 
     deleteProduct(id) {
         this.cache.inventory = this.cache.inventory.filter(p => p.id !== id);
