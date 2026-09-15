@@ -620,19 +620,6 @@ const Analytics = {
             metrics
         });
 
-        // Use the generated HTML from the report container but clone it so html2pdf can render it properly 
-        // without affecting the visible DOM (since report container might be hidden in normal view).
-        const element = report.cloneNode(true);
-        // Ensure it is visible for rendering
-        element.style.display = 'block';
-        element.style.position = 'fixed';
-        element.style.left = '0';
-        element.style.top = '0';
-        element.style.zIndex = '-9999';
-        element.style.backgroundColor = '#ffffff';
-        element.style.width = '210mm'; // A4 width approx
-        document.body.appendChild(element);
-
         const opt = {
             margin:       10,
             filename:     `IHM_Sales_Report_${periodLabel.replace(/ /g, '_')}.pdf`,
@@ -641,20 +628,17 @@ const Analytics = {
             jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
         };
 
-        // Wait a short tick for the browser to apply CSS and layout the appended element
-        setTimeout(() => {
-            html2pdf().set(opt).from(element).save().then(() => {
-                document.body.removeChild(element);
-                btn.innerHTML = originalText;
-                btn.disabled = false;
-            }).catch(err => {
-                console.error('PDF Generation Error:', err);
-                alert('Failed to generate PDF. Please try again.');
-                document.body.removeChild(element);
-                btn.innerHTML = originalText;
-                btn.disabled = false;
-            });
-        }, 100);
+        // Pass the raw HTML string directly to html2pdf.
+        // This avoids any CSS 'display: none' issues from the wrapper container.
+        html2pdf().set(opt).from(report.innerHTML).save().then(() => {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        }).catch(err => {
+            console.error('PDF Generation Error:', err);
+            alert('Failed to generate PDF. Please try again.');
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        });
     },
 
     getOrCreateReportContainer() {
