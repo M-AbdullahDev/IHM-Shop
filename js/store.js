@@ -202,23 +202,23 @@ const Store = {
     },
 
     getInventory() {
-        return this.cache.inventory.filter(p => p.lowStock !== -999);
+        return this.cache.inventory.filter(p => !p.name.startsWith('[DELETED]'));
     },
 
     getFilteredInventory() {
         const activeShop = localStorage.getItem('active_shop') || 'All Shops';
-        if (activeShop === 'All Shops') return this.cache.inventory.filter(p => p.lowStock !== -999);
-        return this.cache.inventory.filter(item => (!item.shop || item.shop === activeShop) && item.lowStock !== -999);
+        if (activeShop === 'All Shops') return this.cache.inventory.filter(p => !p.name.startsWith('[DELETED]'));
+        return this.cache.inventory.filter(item => (!item.shop || item.shop === activeShop) && !item.name.startsWith('[DELETED]'));
     },
 
     getAccessories() {
-        return this.cache.accessories.filter(a => a.lowStock !== -999);
+        return this.cache.accessories.filter(a => !a.name.startsWith('[DELETED]'));
     },
 
     getFilteredAccessories() {
         const activeShop = localStorage.getItem('active_shop') || 'All Shops';
-        if (activeShop === 'All Shops') return this.cache.accessories.filter(a => a.lowStock !== -999);
-        return this.cache.accessories.filter(item => (!item.shop || item.shop === activeShop) && item.lowStock !== -999);
+        if (activeShop === 'All Shops') return this.cache.accessories.filter(a => !a.name.startsWith('[DELETED]'));
+        return this.cache.accessories.filter(item => (!item.shop || item.shop === activeShop) && !item.name.startsWith('[DELETED]'));
     },
 
     getSales() {
@@ -399,8 +399,8 @@ const Store = {
 
     deleteProduct(id) {
         const item = this.cache.inventory.find(p => p.id === id) || this.cache.accessories.find(a => a.id === id);
-        if (item) {
-            item.lowStock = -999;
+        if (item && !item.name.startsWith('[DELETED]')) {
+            item.name = '[DELETED] ' + item.name;
             item.quantity = 0;
             this.updateProductFull(item);
         }
@@ -415,19 +415,19 @@ const Store = {
         // Soft delete all variants in cache
         this.cache.inventory.forEach(p => {
             if (p.name === name) {
-                p.lowStock = -999;
+                p.name = '[DELETED] ' + p.name;
                 p.quantity = 0;
             }
         });
         this.cache.accessories.forEach(a => {
             if (a.name === name) {
-                a.lowStock = -999;
+                a.name = '[DELETED] ' + a.name;
                 a.quantity = 0;
             }
         });
 
         if (idsToDelete.length > 0) {
-            window.supabaseClient.from('products').update({ low_stock_threshold: -999, quantity: 0 }).in('id', idsToDelete).then(({ error }) => {
+            window.supabaseClient.from('products').update({ name: `[DELETED] ${name}`, quantity: 0 }).in('id', idsToDelete).then(({ error }) => {
                 if (error) {
                     console.error("Error soft-deleting product group from Supabase", error);
                     if (window.UI) window.UI.showToast("Failed to delete: " + (error.message || JSON.stringify(error)), "error");
