@@ -700,7 +700,12 @@ const Analytics = {
             ? sales.map(sale => {
                 const units = this.getSaleItems(sale).reduce((sum, item) => sum + Number(item.quantity || 0), 0);
                 const items = this.getSaleItems(sale)
-                    .map(item => `${this.escapeHtml(item.name)} x${Number(item.quantity || 0)} @ ${UI.formatCurrency(Number(item.price || 0))}`)
+                    .map(item => {
+                        let name = item.name || (item.product ? item.product.name : 'Unknown');
+                        name = name.replace(/^\[DELETED\]\s*/i, '');
+                        const price = Number(item.price || item.unit_final_price || 0);
+                        return `${this.escapeHtml(name)} x${Number(item.quantity || 0)} @ ${UI.formatCurrency(price)}`;
+                    })
                     .join('<br>');
 
                 return `
@@ -840,22 +845,32 @@ const Analytics = {
 
         sales.forEach(sale => {
             this.getSaleItems(sale).forEach(item => {
-                const fallback = inventory.find(p => p.id === item.id) || {};
+                // Support both local JSON format and Supabase relational format
+                const productId = item.id || item.product_id;
+                let productName = item.name || (item.product ? item.product.name : null);
+                const quantity = Number(item.quantity || 0);
+                const price = Number(item.price || item.unit_final_price || 0);
+                const cost = Number(item.costPrice || item.unit_cost_price || 0);
+
+                const fallback = inventory.find(p => p.id === productId) || {};
+                
+                if (!productName && fallback.name) productName = fallback.name;
+                if (!productName) productName = 'Unknown item';
+                
+                // Strip [DELETED] prefix for analytics display
+                productName = productName.replace(/^\[DELETED\]\s*/i, '');
+
                 const key = [
-                    item.id || item.name,
-                    item.name,
-                    item.color,
-                    item.size
+                    productId || productName,
+                    productName
                 ].join('|');
 
                 if (!stats[key]) {
                     stats[key] = {
-                        id: item.id,
-                        name: item.name || fallback.name || 'Unknown item',
+                        id: productId,
+                        name: productName,
                         type: item.type || fallback.type || 'Item',
                         style: item.style || fallback.style || 'Standard',
-                        color: item.color || fallback.color || 'N/A',
-                        size: item.size || fallback.size || 'N/A',
                         qty: 0,
                         revenue: 0,
                         cost: 0,
@@ -863,10 +878,6 @@ const Analytics = {
                         lastSold: sale.timestamp
                     };
                 }
-
-                const quantity = Number(item.quantity || 0);
-                const price = Number(item.price || fallback.price || 0);
-                const cost = Number(item.costPrice ?? fallback.costPrice ?? 0);
 
                 stats[key].qty += quantity;
                 stats[key].revenue += price * quantity;

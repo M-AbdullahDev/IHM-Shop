@@ -121,10 +121,13 @@ const Receipts = {
                 if (item.color && item.color !== 'N/A' && item.color.trim() !== '') variantInfo.push(item.color);
                 const variantText = variantInfo.length > 0 ? ` (${variantInfo.join('/')})` : '';
                 
-                return `
+                        let displayName = item.name || (item.product ? item.product.name : 'Unknown Item');
+                        displayName = displayName.replace(/^\[DELETED\]\s*/i, '');
+                        const price = Number(item.price || item.unit_final_price || 0);
+                        return `
                     <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 0.35rem; border-bottom: 1px dashed var(--glass-border); padding-bottom: 0.15rem;">
-                        <span>${item.name || 'Item'}${variantText} x${item.quantity || 0}</span>
-                        <span>${UI.formatCurrency((item.price || 0) * (item.quantity || 0))}</span>
+                        <span>${this.escapeHtml(displayName)}${variantText} x${item.quantity || 0}</span>
+                        <span>${UI.formatCurrency(price * (item.quantity || 0))}</span>
                     </div>
                 `;
             }).join('');
