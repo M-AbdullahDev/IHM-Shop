@@ -604,40 +604,13 @@ const Inventory = {
             }
         }
 
-        // Populate size options based on product type
-        const sizeSelect = document.getElementById('quick-size-select');
-        if (sizeSelect) {
-            const isAccessory = Store.getFilteredAccessories().some(a => a.name === name);
-            const sizeOptions = [];
-            if (firstProduct.type === 'Dress Shirt') {
-                sizeOptions.push('14', '14.5', '15', '15.5', '16', '16.5', '17', '17.5');
-            } else if (firstProduct.type === 'Jeans') {
-                sizeOptions.push('28', '30', '32', '34', '36', '38');
-            } else {
-                if (isAccessory || ['Glasses', 'Perfume'].includes(firstProduct.type)) {
-                    sizeOptions.push('N/A');
-                }
-                sizeOptions.push('S', 'M', 'L', 'XL', 'XXL');
-            }
-            
-            sizeSelect.innerHTML = '<option value="">Select Size</option>';
-            sizeOptions.forEach(size => {
-                const opt = document.createElement('option');
-                opt.value = size;
-                opt.textContent = size;
-                sizeSelect.appendChild(opt);
-            });
-        }
-
         UI.showModal('quick-add-stock-modal');
     },
 
     handleQuickAddStock(form) {
         const productName = form.elements['productName'].value;
         const inputName = form.elements['name'] ? form.elements['name'].value : productName;
-        const color = form.elements['color'].value;
-        const size = form.elements['size'].value;
-        const quantity = parseInt(form.elements['quantity'].value) || 0;
+        const addQuantity = parseInt(form.elements['quantity'].value) || 0;
         const price = form.elements['price'] ? (parseFloat(form.elements['price'].value) || 0) : 0;
         const minSellingPrice = form.elements['minSellingPrice'] ? (parseFloat(form.elements['minSellingPrice'].value) || 0) : 0;
         
@@ -648,42 +621,22 @@ const Inventory = {
         const firstProduct = allProducts.find(p => p.name === productName);
         if (!firstProduct) return;
 
-        let newName = inputName;
-        if (color || (size && size !== 'Default')) {
-            const parts = [];
-            if (color) parts.push(color);
-            if (size && size !== 'Default') parts.push(size);
-            newName = `${inputName} - ${parts.join(' ')}`;
+        // Update existing product
+        firstProduct.name = inputName;
+        firstProduct.quantity = (parseInt(firstProduct.quantity) || 0) + addQuantity;
+        firstProduct.price = price || firstProduct.price;
+        firstProduct.minSellingPrice = minSellingPrice || firstProduct.minSellingPrice;
+        if (!isEmployee && costPrice !== undefined) {
+            firstProduct.costPrice = costPrice;
         }
 
-        // Create new variant
-        const newVariant = {
-            name: newName,
-            type: firstProduct.type,
-            style: firstProduct.style,
-            color: color,
-            size: size,
-            quantity: quantity,
-            price: price || firstProduct.price,
-            minSellingPrice: minSellingPrice || firstProduct.minSellingPrice,
-            costPrice: isEmployee ? firstProduct.costPrice : (costPrice || firstProduct.costPrice),
-            lowStock: firstProduct.lowStock || 5
-        };
-
-        const isAccessory = Store.getFilteredAccessories().find(a => a.name === productName);
-        if (isAccessory) {
-            Store.addAccessory(newVariant);
-        } else {
-            Store.addProduct(newVariant);
-        }
+        Store.updateProductFull(firstProduct);
 
         // Clear form to prevent accidental resubmit
         form.reset();
         form.elements['productName'].value = '';
         
         UI.hideModal('quick-add-stock-modal');
-
-
 
         this.render();
         window.dispatchEvent(new CustomEvent('inventoryUpdate'));

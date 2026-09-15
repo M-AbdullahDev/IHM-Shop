@@ -416,6 +416,34 @@ const Store = {
         });
     },
 
+    deleteProductGroup(name) {
+        const idsToDelete = [
+            ...this.cache.inventory.filter(p => p.name === name).map(p => p.id),
+            ...this.cache.accessories.filter(a => a.name === name).map(a => a.id)
+        ];
+
+        this.cache.inventory = this.cache.inventory.filter(p => p.name !== name);
+        this.cache.accessories = this.cache.accessories.filter(a => a.name !== name);
+
+        if (idsToDelete.length > 0) {
+            window.supabaseClient.from('products').delete().in('id', idsToDelete).then(({ error }) => {
+                if (error) {
+                    console.error("Error deleting product group from Supabase", error);
+                    if (window.UI) window.UI.showToast("Failed to delete product group.", "error");
+                    this.silentReInit();
+                } else {
+                    console.log(`Deleted product group "${name}" from Supabase`);
+                    if (window.UI) window.UI.showToast(`Deleted ${name} and all variants`, "success");
+                }
+            }).catch(err => {
+                console.error(err);
+                if (window.UI) window.UI.showToast("Failed to delete product group.", "error");
+                this.silentReInit();
+            });
+        }
+        return idsToDelete;
+    },
+
     addSale(sale) {
         sale.id = crypto.randomUUID();
         sale.displayId = sale.id.substring(0,8).toUpperCase();

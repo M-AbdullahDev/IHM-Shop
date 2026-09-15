@@ -214,7 +214,15 @@ const UI = {
     }
 };
 
-window.UI = UI;
+// Override standard alert to use custom toast notification for better UX in Electron
+window.alert = function(msg) {
+    if (window.UI && window.UI.showToast) {
+        const type = (msg && msg.toLowerCase().includes('success')) ? 'success' : 'error';
+        window.UI.showToast(msg, type);
+    } else {
+        console.warn("Alert:", msg);
+    }
+};
 
 window.UI = UI;
 
