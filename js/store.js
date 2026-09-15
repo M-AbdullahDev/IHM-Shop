@@ -202,23 +202,23 @@ const Store = {
     },
 
     getInventory() {
-        return this.cache.inventory;
+        return this.cache.inventory.filter(p => p.lowStock !== -999);
     },
 
     getFilteredInventory() {
         const activeShop = localStorage.getItem('active_shop') || 'All Shops';
-        if (activeShop === 'All Shops') return this.cache.inventory;
-        return this.cache.inventory.filter(item => !item.shop || item.shop === activeShop);
+        if (activeShop === 'All Shops') return this.cache.inventory.filter(p => p.lowStock !== -999);
+        return this.cache.inventory.filter(item => (!item.shop || item.shop === activeShop) && item.lowStock !== -999);
     },
 
     getAccessories() {
-        return this.cache.accessories;
+        return this.cache.accessories.filter(a => a.lowStock !== -999);
     },
 
     getFilteredAccessories() {
         const activeShop = localStorage.getItem('active_shop') || 'All Shops';
-        if (activeShop === 'All Shops') return this.cache.accessories;
-        return this.cache.accessories.filter(item => !item.shop || item.shop === activeShop);
+        if (activeShop === 'All Shops') return this.cache.accessories.filter(a => a.lowStock !== -999);
+        return this.cache.accessories.filter(item => (!item.shop || item.shop === activeShop) && item.lowStock !== -999);
     },
 
     getSales() {
@@ -398,22 +398,12 @@ const Store = {
     },
 
     deleteProduct(id) {
-        this.cache.inventory = this.cache.inventory.filter(p => p.id !== id);
-        this.cache.accessories = this.cache.accessories.filter(a => a.id !== id);
-        
-        window.supabaseClient.from('products').delete().eq('id', id).then(({ error }) => {
-            if (error) {
-                console.error("Error deleting product from Supabase", error);
-                if (window.UI) window.UI.showToast("Failed to delete product.", "error");
-                this.silentReInit();
-            } else {
-                console.log("Deleted product from Supabase");
-            }
-        }).catch(err => {
-            console.error(err);
-            if (window.UI) window.UI.showToast("Failed to delete product.", "error");
-            this.silentReInit();
-        });
+        const item = this.cache.inventory.find(p => p.id === id) || this.cache.accessories.find(a => a.id === id);
+        if (item) {
+            item.lowStock = -999;
+            item.quantity = 0;
+            this.updateProductFull(item);
+        }
     },
 
     deleteProductGroup(name) {
@@ -422,18 +412,29 @@ const Store = {
             ...this.cache.accessories.filter(a => a.name === name).map(a => a.id)
         ];
 
-        this.cache.inventory = this.cache.inventory.filter(p => p.name !== name);
-        this.cache.accessories = this.cache.accessories.filter(a => a.name !== name);
+        // Soft delete all variants in cache
+        this.cache.inventory.forEach(p => {
+            if (p.name === name) {
+                p.lowStock = -999;
+                p.quantity = 0;
+            }
+        });
+        this.cache.accessories.forEach(a => {
+            if (a.name === name) {
+                a.lowStock = -999;
+                a.quantity = 0;
+            }
+        });
 
         if (idsToDelete.length > 0) {
-            window.supabaseClient.from('products').delete().in('id', idsToDelete).then(({ error }) => {
+            window.supabaseClient.from('products').update({ low_stock_threshold: -999, quantity: 0 }).in('id', idsToDelete).then(({ error }) => {
                 if (error) {
-                    console.error("Error deleting product group from Supabase", error);
+                    console.error("Error soft-deleting product group from Supabase", error);
                     if (window.UI) window.UI.showToast("Failed to delete: " + (error.message || JSON.stringify(error)), "error");
                     this.silentReInit();
                 } else {
-                    console.log(`Deleted product group "${name}" from Supabase`);
-                    if (window.UI) window.UI.showToast(`Deleted ${name} and all variants`, "success");
+                    console.log(`Soft-deleted product group "${name}" from Supabase`);
+                    if (window.UI) window.UI.showToast(`Deleted ${name} successfully`, "success");
                 }
             }).catch(err => {
                 console.error(err);
