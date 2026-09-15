@@ -9,6 +9,9 @@
     <!-- Fonts & Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="css/style.css?v=5">
+    
+    <!-- External Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
     <!-- Global Error Handler to capture and render any JS errors directly on screen -->
     <script>
@@ -539,8 +542,11 @@
                                 <option value="monthly">This Month</option>
                                 <option value="previousMonth">Previous Month</option>
                             </select>
+                            <button type="button" class="btn btn-primary" id="analytics-download-pdf-btn" style="background: var(--accent-success); border-color: var(--accent-success);">
+                                <i class="fas fa-download"></i> Download PDF
+                            </button>
                             <button type="button" class="btn btn-primary" id="analytics-print-pdf-btn">
-                                <i class="fas fa-file-pdf"></i> Print PDF
+                                <i class="fas fa-print"></i> Print
                             </button>
                         </div>
                     </div>

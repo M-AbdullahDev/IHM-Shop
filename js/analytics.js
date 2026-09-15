@@ -97,6 +97,11 @@ const Analytics = {
         if (printButton) {
             printButton.addEventListener('click', () => this.printPdfReport());
         }
+
+        const downloadButton = document.getElementById('analytics-download-pdf-btn');
+        if (downloadButton) {
+            downloadButton.addEventListener('click', () => this.downloadPdfReport());
+        }
     },
 
     render() {
@@ -575,6 +580,76 @@ const Analytics = {
             document.body.classList.remove('printing-sales-report');
         }, { once: true });
         window.print();
+    },
+
+    downloadPdfReport() {
+        if (typeof html2pdf === 'undefined') {
+            alert('PDF library is loading or failed to load. Please try again in a moment or refresh the page.');
+            return;
+        }
+        
+        const btn = document.getElementById('analytics-download-pdf-btn');
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
+        btn.disabled = true;
+
+        const select = document.getElementById('analytics-report-range');
+        const range = select?.value || this.activeRange || 'daily';
+
+        if (range === 'custom' && !this.hasCustomDateRange()) {
+            alert('Please choose a start date and end date before downloading a selected-range report.');
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+            return;
+        }
+
+        const sales = Store.getFilteredSales() || [];
+        const inventory = [...Store.getFilteredInventory(), ...Store.getFilteredAccessories()];
+        const filteredSales = this.getSalesForRange(sales, range);
+        const itemStats = this.getItemStats(filteredSales, inventory)
+            .sort((a, b) => b.revenue - a.revenue || b.qty - a.qty);
+        const metrics = this.getReportMetrics(filteredSales, inventory);
+        const periodLabel = this.getReportPeriodLabel(range);
+        const report = this.getOrCreateReportContainer();
+
+        report.innerHTML = this.buildReportHtml({
+            range,
+            periodLabel,
+            sales: filteredSales,
+            itemStats,
+            metrics
+        });
+
+        // Use the generated HTML from the report container but clone it so html2pdf can render it properly 
+        // without affecting the visible DOM (since report container might be hidden in normal view).
+        const element = report.cloneNode(true);
+        // Ensure it is visible for rendering
+        element.style.display = 'block';
+        element.style.position = 'absolute';
+        element.style.left = '-9999px';
+        element.style.top = '-9999px';
+        element.style.width = '210mm'; // A4 width approx
+        document.body.appendChild(element);
+
+        const opt = {
+            margin:       10,
+            filename:     `IHM_Sales_Report_${periodLabel.replace(/ /g, '_')}.pdf`,
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { scale: 2, useCORS: true, logging: false },
+            jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
+
+        html2pdf().set(opt).from(element).save().then(() => {
+            document.body.removeChild(element);
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        }).catch(err => {
+            console.error('PDF Generation Error:', err);
+            alert('Failed to generate PDF. Please try again.');
+            document.body.removeChild(element);
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        });
     },
 
     getOrCreateReportContainer() {
