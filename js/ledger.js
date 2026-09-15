@@ -157,7 +157,7 @@ const Ledger = {
         if (query) {
             const terms = query.split(/\s+/).filter(Boolean);
             items = items.filter(item => {
-                const haystack = [item.name, item.type, item.style, item.color, item.size]
+                const haystack = [item.name, item.type, item.style]
                     .filter(Boolean)
                     .join(' ')
                     .toLowerCase();
@@ -272,11 +272,11 @@ const Ledger = {
                 return `
                     <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.5rem 0.75rem; background: var(--bg-card); border-radius: 8px; border: 1px solid var(--glass-border); margin: 0.25rem 0; gap: 1rem; flex-wrap: wrap;">
                         <div style="display: flex; align-items: center; gap: 0.5rem; min-width: 170px;">
-                            <div style="width: 110px; flex-shrink: 0; display: flex; align-items: center;">
-                                ${UI.getColorBadge(v.color)}
+                            <div style="display: flex; align-items: center; gap: 0.25rem;">
+                                <i class="fas fa-tag" style="color: var(--text-muted);"></i>
                             </div>
                             <span style="height: 10px; width: 1px; background: var(--glass-border);"></span>
-                            <span style="font-weight: 800; color: var(--text-main); font-size: 0.75rem;">Size: ${v.size}</span>
+                            <span style="font-weight: 800; color: var(--text-main); font-size: 0.75rem;">Standard</span>
                         </div>
                         <div style="display: flex; gap: 1.5rem; align-items: center; flex: 1; justify-content: flex-end; flex-wrap: wrap; font-size: 0.8rem;">
                             <div>
@@ -342,13 +342,13 @@ const Ledger = {
                             </div>
                         </div>
                         <div style="margin-top: 0.75rem; display: flex; gap: 0.3rem;">
-                            <button class="btn btn-ghost" style="color: var(--accent-success); font-size: 0.72rem; padding: 0.25rem 0.5rem; height: auto; border: 1px solid rgba(16, 185, 129, 0.2); border-radius: 6px; display: inline-flex; align-items: center; gap: 0.25rem;" onclick="window.quickAddStock('${product.name}')" title="Quick Add Color & Size">
+                            <button class="btn btn-ghost" style="color: var(--accent-success); font-size: 0.72rem; padding: 0.25rem 0.5rem; height: auto; border: 1px solid rgba(16, 185, 129, 0.2); border-radius: 6px; display: inline-flex; align-items: center; gap: 0.25rem;" onclick="window.quickAddStock('${product.name}')" title="Quick Add Stock">
                                 <i class="fas fa-plus" style="font-size: 0.7rem;"></i> Quick Add
                             </button>
                             <button class="btn btn-ghost" style="color: var(--accent-primary); font-size: 0.72rem; padding: 0.25rem 0.5rem; height: auto; border: 1px solid rgba(59, 130, 246, 0.2); border-radius: 6px; display: inline-flex; align-items: center; gap: 0.25rem;" onclick="window.masterEditProduct('${product.name}')" title="Edit Product Name & Price for All Variants">
                                 <i class="fas fa-edit" style="font-size: 0.7rem;"></i> Master Edit
                             </button>
-                            <button class="btn btn-ghost" style="color: var(--accent-danger); font-size: 0.72rem; padding: 0.25rem 0.5rem; height: auto; border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 6px; display: inline-flex; align-items: center; gap: 0.25rem;" onclick="window.deleteProductGroup('${product.name}')" title="Delete Product and All Size/Color Variants">
+                            <button class="btn btn-ghost" style="color: var(--accent-danger); font-size: 0.72rem; padding: 0.25rem 0.5rem; height: auto; border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 6px; display: inline-flex; align-items: center; gap: 0.25rem;" onclick="window.deleteProductGroup('${product.name}')" title="Delete Product and All Variants">
                                 <i class="fas fa-trash-alt" style="font-size: 0.7rem;"></i> Master Delete
                             </button>
                         </div>

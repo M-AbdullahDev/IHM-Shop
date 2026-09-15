@@ -441,7 +441,7 @@ const Analytics = {
                 <div class="analytics-rank">${index + 1}</div>
                 <div class="analytics-list-main">
                     <div class="analytics-list-title">${this.escapeHtml(stat.name)}</div>
-                    <div class="analytics-list-meta">${this.escapeHtml(stat.type)} | ${this.escapeHtml(stat.color)} | Size ${this.escapeHtml(stat.size)}</div>
+                    <div class="analytics-list-meta">${this.escapeHtml(stat.type)}</div>
                 </div>
                 <div class="analytics-list-value">
                     <strong>${stat.qty.toLocaleString()} units</strong>
@@ -473,7 +473,7 @@ const Analytics = {
                 <div class="analytics-rank"><i class="fas fa-box"></i></div>
                 <div class="analytics-list-main">
                     <div class="analytics-list-title">${this.escapeHtml(product.name)}</div>
-                    <div class="analytics-list-meta">${this.escapeHtml(product.type)} | ${this.escapeHtml(product.color)} | Size ${this.escapeHtml(product.size)}</div>
+                    <div class="analytics-list-meta">${this.escapeHtml(product.type)}</div>
                 </div>
                 <div class="analytics-list-value">
                     <strong>${Number(product.quantity || 0).toLocaleString()} stock</strong>
@@ -500,12 +500,6 @@ const Analytics = {
                 <td>
                     <div style="font-weight: 700; color: var(--text-main);">${this.escapeHtml(item.name)}</div>
                     <div style="font-size: 0.75rem; color: var(--text-muted);">${this.escapeHtml(item.type)} | ${this.escapeHtml(item.style)}</div>
-                </td>
-                <td>
-                    <div style="display: flex; flex-direction: column; gap: 0.25rem;">
-                        ${UI.getColorBadge(item.color)}
-                        <span style="font-weight: 700; font-size: 0.75rem;">Size ${this.escapeHtml(item.size)}</span>
-                    </div>
                 </td>
                 <td style="font-weight: 800;">${item.qty.toLocaleString()}</td>
                 <td style="font-weight: 800; color: var(--accent-success);">${UI.formatCurrency(item.revenue)}</td>
@@ -692,8 +686,6 @@ const Analytics = {
                     <tr>
                         <td>${this.escapeHtml(item.name)}</td>
                         <td>${this.escapeHtml(item.type)} / ${this.escapeHtml(item.style)}</td>
-                        <td>${this.escapeHtml(item.color)}</td>
-                        <td>${this.escapeHtml(item.size)}</td>
                         <td>${item.qty.toLocaleString()}</td>
                         <td>${UI.formatCurrency(unitPrice)}</td>
                         <td>${UI.formatCurrency(item.revenue)}</td>
@@ -752,8 +744,6 @@ const Analytics = {
                             <tr>
                                 <th>Item Name</th>
                                 <th>Type / Style</th>
-                                <th>Color</th>
-                                <th>Size</th>
                                 <th>Qty</th>
                                 <th>Unit Price</th>
                                 <th>Total Price</th>
