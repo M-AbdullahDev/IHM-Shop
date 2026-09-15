@@ -69,24 +69,10 @@ const Dashboard = {
             const itemCount = (sale.items || []).length;
             return `
             <tr>
-                <td colspan="4" style="padding: 0;">
-                    <div style="padding: 1rem; display: flex; flex-direction: column; gap: 0.5rem;">
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <span style="font-family: monospace; font-weight: 800; color: var(--text-main); font-size: 1.1rem;">#${sale.displayId || sale.id}</span>
-                            <span style="font-weight: 800; color: var(--accent-success); font-size: 1.1rem;">${UI.formatCurrency(sale.total)}</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px dashed var(--glass-border); padding-top: 0.5rem;">
-                            <span style="color: var(--text-muted); font-size: 0.85rem;">
-                                <i class="fas fa-shopping-bag" style="margin-right: 0.25rem;"></i>
-                                ${itemCount} ${itemCount === 1 ? 'item' : 'items'}
-                            </span>
-                            <span style="color: var(--text-muted); font-size: 0.8rem;">
-                                <i class="far fa-clock" style="margin-right: 0.25rem;"></i>
-                                ${sale.timestamp ? new Date(sale.timestamp).toLocaleString() : 'N/A'}
-                            </span>
-                        </div>
-                    </div>
-                </td>
+                <td data-label="Order ID"><span style="font-family: monospace; font-weight: 700; color: var(--text-main);">#${sale.displayId || sale.id}</span></td>
+                <td data-label="Items">${itemCount} ${itemCount === 1 ? 'item' : 'items'}</td>
+                <td data-label="Total" style="font-weight: 700; color: var(--accent-success);">${UI.formatCurrency(sale.total)}</td>
+                <td data-label="Time" style="color: var(--text-muted); font-size: 0.8rem;">${sale.timestamp ? new Date(sale.timestamp).toLocaleString() : 'N/A'}</td>
             </tr>
             `;
         }).join('');
