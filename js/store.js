@@ -429,7 +429,7 @@ const Store = {
             window.supabaseClient.from('products').delete().in('id', idsToDelete).then(({ error }) => {
                 if (error) {
                     console.error("Error deleting product group from Supabase", error);
-                    if (window.UI) window.UI.showToast("Failed to delete product group.", "error");
+                    if (window.UI) window.UI.showToast("Failed to delete: " + (error.message || JSON.stringify(error)), "error");
                     this.silentReInit();
                 } else {
                     console.log(`Deleted product group "${name}" from Supabase`);
@@ -437,7 +437,7 @@ const Store = {
                 }
             }).catch(err => {
                 console.error(err);
-                if (window.UI) window.UI.showToast("Failed to delete product group.", "error");
+                if (window.UI) window.UI.showToast("Exception: " + err.message, "error");
                 this.silentReInit();
             });
         }
