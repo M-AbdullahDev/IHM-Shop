@@ -786,9 +786,9 @@ const POS = {
 
         const sale = {
             items: discountedItems,
-            subtotal: total,
+            subtotal: subtotalOriginal,
             discountPercent: Math.round(effectiveDiscount * 100) / 100,
-            discount: 0,
+            discount: discountAmount,
             total: total,
             paymentMethod: this.paymentMethod,
             timestamp: new Date().toISOString(),
@@ -829,21 +829,24 @@ const POS = {
             printFrame.style.border = '0';
             document.body.appendChild(printFrame);
         }
-
-        const itemsHtml = sale.items.map(item => `
-            <tr style="border-bottom: 1px dotted #ccc; vertical-align: top;">
-                <td style="padding: 4px 0; font-weight: 700; text-align: left; font-size: 11px; width: 35px; font-family: Arial, sans-serif; color: #000;">${item.quantity}</td>
-                <td style="padding: 4px 0; text-align: left; padding-left: 4px;">
-                    <div style="font-weight: 700; font-size: 11px; color: #000; font-family: Arial, sans-serif; line-height: 1.15;">${item.name}</div>
-                    <div style="font-size: 9px; color: #555; margin-top: 1px; font-family: Arial, sans-serif; font-weight: bold;">
-                        ${item.size && item.size !== 'undefined' ? item.size : 'N/A'} / ${item.color && item.color !== 'undefined' ? String(item.color).toUpperCase() : 'N/A'}
-                    </div>
-                </td>
-                <td style="padding: 4px 0; text-align: right; font-weight: 700; font-size: 11px; width: 100px; font-family: Arial, sans-serif; color: #000;">
-                    ${UI.formatCurrency(item.price * item.quantity)}
-                </td>
-            </tr>
-        `).join('');
+        const itemsHtml = sale.items.map(item => {
+            const variantInfo = [];
+            if (item.size && item.size !== 'N/A' && item.size.trim() !== '') variantInfo.push(item.size);
+            if (item.color && item.color !== 'N/A' && String(item.color).trim() !== '') variantInfo.push(item.color);
+            const variantText = variantInfo.length > 0 ? ` (${variantInfo.join('/')})` : '';
+            
+            return `
+                <tr style="border-bottom: 1px dotted #ccc; vertical-align: top;">
+                    <td style="padding: 4px 0; font-weight: 700; text-align: left; font-size: 11px; width: 35px; font-family: Arial, sans-serif; color: #000;">${item.quantity}</td>
+                    <td style="padding: 4px 0; text-align: left; padding-left: 4px;">
+                        <div style="font-weight: 700; font-size: 11px; color: #000; font-family: Arial, sans-serif; line-height: 1.15;">${item.name || 'Item'}${variantText}</div>
+                    </td>
+                    <td style="padding: 4px 0; text-align: right; font-weight: 700; font-size: 11px; width: 100px; font-family: Arial, sans-serif; color: #000;">
+                        ${UI.formatCurrency(item.price * item.quantity)}
+                    </td>
+                </tr>
+            `;
+        }).join('');
 
         const totalItemsCount = sale.items.reduce((sum, item) => sum + item.quantity, 0);
 
@@ -918,7 +921,7 @@ const POS = {
                                 </tr>
                                 <tr>
                                     <td style="text-align: left; color: #000; font-weight: 600; padding-right: 4px; font-size: 10px; text-transform: uppercase; white-space: nowrap;">INVOICE:</td>
-                                    <td style="text-align: right; font-weight: 700; color: #000; font-size: 10px; text-transform: uppercase; font-family: monospace;">${sale.id.toString().slice(-8).toUpperCase()}</td>
+                                    <td style="text-align: right; font-weight: 700; color: #000; font-size: 10px; text-transform: uppercase; font-family: monospace;">#${sale.displayId || sale.id.toString().substring(0,8).toUpperCase()}</td>
                                 </tr>
                             </table>
                         </div>
@@ -947,17 +950,17 @@ const POS = {
                         <table style="width: 100%; border-collapse: collapse; font-size: 11px; color: #000; margin-bottom: 6px; font-family: Arial, sans-serif;">
                             <tr style="font-weight: 700; font-size: 11px; line-height: 1.45;">
                                 <td style="text-align: left; padding: 2px 0;">Subtotal:</td>
-                                <td style="text-align: right; font-weight: 700; padding: 2px 0;">${UI.formatCurrency(sale.subtotal)}</td>
+                                <td style="text-align: right; font-weight: 700; padding: 2px 0;">${UI.formatCurrency(sale.total || sale.subtotal)}</td>
                             </tr>
                             ${sale.discount > 0 ? `
                                 <tr style="color: #000; font-weight: 700; line-height: 1.45;">
-                                    <td style="text-align: left; padding: 2px 0;">Discount (${sale.discountPercent || Math.round((sale.discount / sale.subtotal) * 100)}%):</td>
+                                    <td style="text-align: left; padding: 2px 0;">Discount:</td>
                                     <td style="text-align: right; font-weight: 700; padding: 2px 0;">-${UI.formatCurrency(sale.discount)}</td>
                                 </tr>
                             ` : ''}
                             <tr style="font-weight: 800; font-size: 14px; border-top: 1.5px dashed #000; border-bottom: 1.5px dashed #000;">
                                 <td style="text-align: left; padding: 4px 0; color: #000;">TOTAL DUE:</td>
-                                <td style="text-align: right; padding: 4px 0; font-weight: 900; color: #000;">${UI.formatCurrency(sale.total)}</td>
+                                <td style="text-align: right; padding: 4px 0; font-weight: 900; color: #000;">${UI.formatCurrency(sale.netTotal || sale.total)}</td>
                             </tr>
                             <tr style="color: #000; font-size: 10px; font-weight: 700;">
                                 <td style="text-align: left; padding-top: 4px;">PAYMENT MODE:</td>

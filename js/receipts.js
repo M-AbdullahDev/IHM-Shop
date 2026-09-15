@@ -74,7 +74,7 @@ const Receipts = {
                 <tr>
                     <td>
                         <span style="font-family: monospace; font-weight: 700; color: var(--text-main); font-size: 1rem;">
-                            #${sale.id || 'Unknown'}
+                            #${sale.displayId || String(sale.id).substring(0,8).toUpperCase()}
                         </span>
                     </td>
                     <td style="color: var(--text-muted); font-size: 0.85rem;">
@@ -115,9 +115,15 @@ const Receipts = {
             const items = sale.items || [];
             const itemsHtml = items.map(item => {
                 if (!item) return '';
+                
+                const variantInfo = [];
+                if (item.size && item.size !== 'N/A' && item.size.trim() !== '') variantInfo.push(item.size);
+                if (item.color && item.color !== 'N/A' && item.color.trim() !== '') variantInfo.push(item.color);
+                const variantText = variantInfo.length > 0 ? ` (${variantInfo.join('/')})` : '';
+                
                 return `
                     <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 0.35rem; border-bottom: 1px dashed var(--glass-border); padding-bottom: 0.15rem;">
-                        <span>${item.name || 'Item'} (${item.size || 'N/A'}/${item.color || 'N/A'}) x${item.quantity || 0}</span>
+                        <span>${item.name || 'Item'}${variantText} x${item.quantity || 0}</span>
                         <span>${UI.formatCurrency((item.price || 0) * (item.quantity || 0))}</span>
                     </div>
                 `;
@@ -130,7 +136,7 @@ const Receipts = {
                     <div style="font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase;">Luxury Retail Pakistan</div>
                 </div>
                 <div style="font-size: 0.7rem; border-top: 1px solid var(--glass-border); border-bottom: 1px solid var(--glass-border); padding: 0.35rem 0; margin-bottom: 1rem; display: flex; justify-content: space-between; color: var(--text-muted);">
-                    <span>INVOICE: #${sale.id}</span>
+                    <span>INVOICE: #${sale.displayId || String(sale.id).substring(0,8).toUpperCase()}</span>
                     <span>${new Date(sale.timestamp).toLocaleString()}</span>
                 </div>
                 <div style="margin-bottom: 1rem;">
@@ -139,17 +145,17 @@ const Receipts = {
                 <div style="font-size: 0.85rem; border-top: 1px solid var(--glass-border); padding-top: 0.5rem;">
                     <div style="display: flex; justify-content: space-between; margin-bottom: 0.25rem;">
                         <span style="color: var(--text-muted);">Subtotal:</span>
-                        <span>${UI.formatCurrency(sale.subtotal)}</span>
+                        <span>${UI.formatCurrency(sale.total || sale.subtotal)}</span>
                     </div>
                     ${sale.discount > 0 ? `
                         <div style="display: flex; justify-content: space-between; margin-bottom: 0.25rem; color: var(--accent-danger);">
-                            <span>Discount (${sale.discountPercent || Math.round((sale.discount / sale.subtotal) * 100)}%):</span>
+                            <span>Discount:</span>
                             <span>-${UI.formatCurrency(sale.discount)}</span>
                         </div>
                     ` : ''}
                     <div style="display: flex; justify-content: space-between; font-weight: 800; font-size: 1rem; border-top: 2px dashed var(--glass-border); padding-top: 0.4rem; margin-top: 0.4rem; color: var(--text-main);">
                         <span>TOTAL:</span>
-                        <span>${UI.formatCurrency(sale.total)}</span>
+                        <span>${UI.formatCurrency(sale.netTotal || sale.total)}</span>
                     </div>
                     <div style="display: flex; justify-content: space-between; font-size: 0.7rem; color: var(--text-muted); margin-top: 0.4rem;">
                         <span>PAYMENT MODE:</span>
