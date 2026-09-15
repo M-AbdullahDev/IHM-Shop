@@ -42,7 +42,7 @@ const Dashboard = {
             });
             const todayTotal = salesToday.reduce((sum, s) => sum + (s.total || 0), 0);
 
-            el.innerHTML = `${prodCount} products · ${totalStock} units` +
+            el.innerHTML = `${prodCount} ${prodCount === 1 ? 'product' : 'products'} · ${totalStock} ${totalStock === 1 ? 'unit' : 'units'}` +
                 (todayTotal > 0 ? `<br><span style="color: var(--accent-success); font-weight: 700;">Today: Rs. ${todayTotal.toLocaleString()}</span>` : '');
         });
     },
@@ -65,14 +65,31 @@ const Dashboard = {
             return;
         }
 
-        container.innerHTML = recentSales.map(sale => `
+        container.innerHTML = recentSales.map(sale => {
+            const itemCount = (sale.items || []).length;
+            return `
             <tr>
-                <td><span style="font-family: monospace; font-weight: 700; color: var(--text-main);">#${sale.displayId || sale.id}</span></td>
-                <td>${(sale.items || []).length} items</td>
-                <td style="font-weight: 700; color: var(--accent-success);">${UI.formatCurrency(sale.total)}</td>
-                <td style="color: var(--text-muted); font-size: 0.8rem;">${sale.timestamp ? new Date(sale.timestamp).toLocaleString() : 'N/A'}</td>
+                <td colspan="4" style="padding: 0;">
+                    <div style="padding: 1rem; display: flex; flex-direction: column; gap: 0.5rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span style="font-family: monospace; font-weight: 800; color: var(--text-main); font-size: 1.1rem;">#${sale.displayId || sale.id}</span>
+                            <span style="font-weight: 800; color: var(--accent-success); font-size: 1.1rem;">${UI.formatCurrency(sale.total)}</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px dashed var(--glass-border); padding-top: 0.5rem;">
+                            <span style="color: var(--text-muted); font-size: 0.85rem;">
+                                <i class="fas fa-shopping-bag" style="margin-right: 0.25rem;"></i>
+                                ${itemCount} ${itemCount === 1 ? 'item' : 'items'}
+                            </span>
+                            <span style="color: var(--text-muted); font-size: 0.8rem;">
+                                <i class="far fa-clock" style="margin-right: 0.25rem;"></i>
+                                ${sale.timestamp ? new Date(sale.timestamp).toLocaleString() : 'N/A'}
+                            </span>
+                        </div>
+                    </div>
+                </td>
             </tr>
-        `).join('');
+            `;
+        }).join('');
     }
 };
 

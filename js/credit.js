@@ -298,24 +298,38 @@ const Udhaar = {
             
             return `
                 <tr>
-                    <td>
-                        <div style="font-weight: 600; color: var(--text-main);">${c.name}</div>
-                    </td>
-                    <td style="color: var(--text-muted);">${c.phone || '-'}</td>
-                    <td style="color: var(--text-muted); font-size: 0.85rem;">${lastTxnDate}</td>
-                    <td style="text-align: right; font-weight: 700; color: ${c.balance > 0 ? 'var(--accent-danger)' : 'var(--text-main)'};">
-                        ${UI.formatCurrency(c.balance)}
-                    </td>
-                    <td style="text-align: center;">
-                        <button class="btn btn-ghost btn-icon" onclick="window.Udhaar.openTransactionModal('${c.id}')" title="Add Transaction">
-                            <i class="fas fa-plus"></i>
-                        </button>
-                        <button class="btn btn-ghost btn-icon" onclick="window.Udhaar.viewCustomerDetails('${c.id}')" title="View Details">
-                            <i class="fas fa-eye"></i>
-                        </button>
-                        <button class="btn btn-ghost btn-icon" style="color: var(--accent-danger);" onclick="window.Udhaar.deleteCustomer('${c.id}')" title="Delete Customer">
-                            <i class="fas fa-trash"></i>
-                        </button>
+                    <td colspan="5" style="padding: 0;">
+                        <div style="padding: 1rem; display: flex; flex-direction: column; gap: 0.75rem;">
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                                <div>
+                                    <div style="font-weight: 700; font-size: 1.1rem; color: var(--text-main); margin-bottom: 0.25rem;">${c.name}</div>
+                                    <div style="font-size: 0.85rem; color: var(--text-muted); display: flex; align-items: center; gap: 0.5rem;">
+                                        <i class="fas fa-phone-alt" style="font-size: 0.7rem;"></i> ${c.phone || 'No phone'}
+                                    </div>
+                                    <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.25rem;">
+                                        Last Txn: ${lastTxnDate}
+                                    </div>
+                                </div>
+                                <div style="text-align: right;">
+                                    <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.25rem;">Balance Due</div>
+                                    <div style="font-weight: 800; font-size: 1.2rem; color: ${c.balance > 0 ? 'var(--accent-danger)' : 'var(--accent-success)'};">
+                                        ${UI.formatCurrency(c.balance)}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div style="display: flex; gap: 0.5rem; border-top: 1px dashed var(--glass-border); padding-top: 0.75rem; margin-top: 0.25rem;">
+                                <button class="btn btn-primary" style="flex: 1; padding: 0.5rem; font-size: 0.85rem;" onclick="window.Udhaar.openTransactionModal('${c.id}')">
+                                    <i class="fas fa-plus"></i> Add Txn
+                                </button>
+                                <button class="btn btn-ghost" style="flex: 1; padding: 0.5rem; font-size: 0.85rem; border: 1px solid var(--glass-border);" onclick="window.Udhaar.viewCustomerDetails('${c.id}')">
+                                    <i class="fas fa-eye"></i> Details
+                                </button>
+                                <button class="btn btn-ghost btn-icon" style="color: var(--accent-danger); border: 1px solid rgba(239, 68, 68, 0.2);" onclick="window.Udhaar.deleteCustomer('${c.id}')" title="Delete Customer">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
                     </td>
                 </tr>
             `;

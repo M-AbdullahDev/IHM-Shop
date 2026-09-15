@@ -280,7 +280,7 @@ const Ledger = {
                         <div style="display: flex; gap: 1.5rem; align-items: center; flex: 1; justify-content: flex-end; flex-wrap: wrap; font-size: 0.8rem;">
                             <div>
                                 <span style="font-size: 0.65rem; color: var(--text-muted); display: block; text-transform: uppercase;">Stock</span>
-                                <span style="font-weight: 700; color: var(--text-main);">${v.quantity} units</span>
+                                <span style="font-weight: 700; color: var(--text-main);">${v.quantity} ${v.quantity === 1 ? 'unit' : 'units'}</span>
                             </div>
                             ${allowedCost ? `
                             <div>
@@ -336,7 +336,7 @@ const Ledger = {
                                 </div>
                                 <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.25rem;">
                                     <span class="badge" style="background: var(--bg-card-hover); color: var(--text-main); font-size: 0.7rem; border: 1px solid var(--glass-border); padding: 0.15rem 0.35rem; border-radius: 4px;">${product.type}</span>
-                                    <span style="margin-left: 0.5rem;">Style: ${product.style}</span>
+                                    ${product.style && product.style !== 'undefined' ? `<span style="margin-left: 0.5rem;">Style: ${product.style}</span>` : ''}
                                 </div>
                             </div>
                         </div>
