@@ -807,6 +807,58 @@ const Analytics = {
     getItemStats(sales, inventory) {
         const stats = {};
 
+        inventory.forEach(item => {
+            if (item.variants && item.variants.length > 0) {
+                item.variants.forEach(v => {
+                    const key = [
+                        item.id || item.name,
+                        item.name,
+                        v.color || 'N/A',
+                        v.size || 'N/A'
+                    ].join('|');
+
+                    if (!stats[key]) {
+                        stats[key] = {
+                            id: item.id,
+                            name: item.name || 'Unknown item',
+                            type: item.type || 'Item',
+                            style: item.style || 'Standard',
+                            color: v.color || 'N/A',
+                            size: v.size || 'N/A',
+                            qty: 0,
+                            revenue: 0,
+                            cost: 0,
+                            profit: 0,
+                            lastSold: null
+                        };
+                    }
+                });
+            } else {
+                const key = [
+                    item.id || item.name,
+                    item.name,
+                    item.color || 'N/A',
+                    item.size || 'N/A'
+                ].join('|');
+
+                if (!stats[key]) {
+                    stats[key] = {
+                        id: item.id,
+                        name: item.name || 'Unknown item',
+                        type: item.type || 'Item',
+                        style: item.style || 'Standard',
+                        color: item.color || 'N/A',
+                        size: item.size || 'N/A',
+                        qty: 0,
+                        revenue: 0,
+                        cost: 0,
+                        profit: 0,
+                        lastSold: null
+                    };
+                }
+            }
+        });
+
         sales.forEach(sale => {
             this.getSaleItems(sale).forEach(item => {
                 const fallback = inventory.find(p => p.id === item.id) || {};
@@ -880,12 +932,14 @@ const Analytics = {
     },
 
     formatDate(timestamp) {
+        if (!timestamp) return '-';
         const date = new Date(timestamp);
         if (Number.isNaN(date.getTime())) return 'Unknown';
         return date.toLocaleDateString([], { year: 'numeric', month: 'short', day: 'numeric' });
     },
 
     formatDateLong(timestamp) {
+        if (!timestamp) return '-';
         const date = new Date(timestamp);
         if (Number.isNaN(date.getTime())) return 'Unknown';
         return date.toLocaleDateString([], { year: 'numeric', month: 'long', day: 'numeric' });
