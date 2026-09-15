@@ -276,7 +276,8 @@ const Inventory = {
 
         const searchInput = document.getElementById('inventory-search');
         if (searchInput) {
-            searchInput.addEventListener('input', (e) => this.render(e.target.value));
+            const debouncedSearch = UI.debounce((val) => this.render(val), 250);
+            searchInput.addEventListener('input', (e) => debouncedSearch(e.target.value));
         }
         
         window.addEventListener('pageShow', (e) => {

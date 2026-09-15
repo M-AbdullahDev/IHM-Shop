@@ -199,6 +199,18 @@ const UI = {
             toast.style.transform = 'translateY(20px)';
             setTimeout(() => toast.remove(), 300);
         }, 3000);
+    },
+
+    debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
     }
 };
 

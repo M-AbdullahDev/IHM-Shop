@@ -45,10 +45,11 @@ const Ledger = {
 
         const searchInput = document.getElementById('ledger-search');
         if (searchInput) {
-            searchInput.addEventListener('input', (e) => {
-                this.searchQuery = e.target.value;
-                this.render(this.searchQuery);
-            });
+            const debouncedSearch = UI.debounce((val) => {
+                this.searchQuery = val;
+                this.render(val);
+            }, 250);
+            searchInput.addEventListener('input', (e) => debouncedSearch(e.target.value));
         }
 
         window.addEventListener('inventoryUpdate', () => {

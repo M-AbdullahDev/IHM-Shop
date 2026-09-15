@@ -123,20 +123,23 @@ const Store = {
 
         if (!window.supabaseClient) return;
 
+        // Use a debounced re-init to prevent freezing on burst updates (e.g. cart checkouts)
+        const debouncedReInit = window.UI && window.UI.debounce 
+            ? window.UI.debounce(() => this.silentReInit(), 500)
+            : () => {
+                clearTimeout(this._reinitTimeout);
+                this._reinitTimeout = setTimeout(() => this.silentReInit(), 500);
+            };
+
         window.supabaseClient
             .channel('public:products')
             .on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, payload => {
                 console.log('Realtime Product change received!', payload);
-                // The most reliable way to handle realtime data consistency in a simple app 
-                // is to trigger a lightweight refetch of the specific changed record, or just let 
-                // the user know new data is available. Given the architecture, a full re-init might be 
-                // heavy, so we will dispatch an event that UI can listen to. 
-                // For a robust MVP, we simply re-init Store silently to fetch the latest state.
-                this.silentReInit();
+                debouncedReInit();
             })
             .on('postgres_changes', { event: '*', schema: 'public', table: 'sales' }, payload => {
                 console.log('Realtime Sale change received!', payload);
-                this.silentReInit();
+                debouncedReInit();
             })
             .subscribe();
     },

@@ -21,7 +21,8 @@ const POS = {
     setupListeners() {
         const searchInput = document.getElementById('pos-search');
         if (searchInput) {
-            searchInput.addEventListener('input', (e) => this.renderProducts(e.target.value));
+            const debouncedSearch = UI.debounce((val) => this.renderProducts(val), 250);
+            searchInput.addEventListener('input', (e) => debouncedSearch(e.target.value));
         }
 
         const categoryFilter = document.getElementById('pos-category-filter');
@@ -405,15 +406,15 @@ const POS = {
         cartList.innerHTML = this.cart.map(item => {
             const discountedPrice = item.price * (1 - (this.discount / 100));
             return `
-            <div class="cart-item" style="margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--glass-border);">
-                <div style="flex: 1;">
-                    <div style="font-weight: 700; font-size: 0.95rem;">${item.name}</div>
-                    <div style="color: var(--text-muted); font-size: 0.8rem; display: flex; align-items: center; gap: 0.5rem;">
+            <div class="cart-item" style="margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--glass-border); flex-wrap: wrap; gap: 10px;">
+                <div style="flex: 1 1 150px; min-width: 0;">
+                    <div style="font-weight: 700; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${item.name}">${item.name}</div>
+                    <div style="color: var(--text-muted); font-size: 0.8rem; display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
                         ${item.size} | ${UI.getColorBadge(item.color)}
                     </div>
                     ${this.discount > 0 ? `<div style="font-size: 0.7rem; color: var(--accent-danger); font-weight: 600; margin-top: 2px;">${this.discount}% discount applied (Original: ${UI.formatCurrency(item.price)})</div>` : ''}
                 </div>
-                <div style="display: flex; align-items: center; gap: 1rem;">
+                <div style="display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex: 1 0 auto;">
                     <div style="display: flex; align-items: center; gap: 0.5rem; background: var(--bg-main); padding: 0.4rem; border-radius: 10px; border: 1px solid var(--glass-border);">
                         <button class="cart-item-qty-btn" onclick="window.updateCartQty('${item.id}', -1)">-</button>
                         <span style="font-weight: 700; min-width: 24px; text-align: center; color: var(--text-main);">${item.quantity}</span>
@@ -1006,9 +1007,14 @@ const POS = {
 
         const searchInput = document.getElementById('return-search-input');
         if (searchInput) {
-            searchInput.addEventListener('input', (e) => {
-                this.renderReturnSearchResults(e.target.value);
-            });
+            const debouncedSearch = UI.debounce((val) => {
+                if (val.trim().length > 0) {
+                    this.renderReturnSearchResults(val);
+                } else {
+                    document.getElementById('return-search-results').innerHTML = '';
+                }
+            }, 250);
+            searchInput.addEventListener('input', (e) => debouncedSearch(e.target.value));
             searchInput.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter') {
                     e.preventDefault();

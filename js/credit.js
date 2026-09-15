@@ -93,7 +93,8 @@ const Udhaar = {
         
         const searchInput = document.getElementById('udhaar-search');
         if (searchInput) {
-            searchInput.addEventListener('input', (e) => this.renderLedger(e.target.value));
+            const debouncedSearch = UI.debounce((val) => this.renderLedger(val), 250);
+            searchInput.addEventListener('input', (e) => debouncedSearch(e.target.value));
         }
     },
 
