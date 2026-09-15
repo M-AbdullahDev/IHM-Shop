@@ -1190,7 +1190,7 @@ img {
 
     /* 2. Dashboard */
     .hero-banner {
-        padding: 1.5rem 1rem !important;
+        display: none !important;
     }
     
     .hero-title, .hero-subtitle {
