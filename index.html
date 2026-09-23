@@ -1510,27 +1510,27 @@
         </div>
     </div>
 
-    <!-- QR Code Modal -->
+    <!-- Barcode Modal -->
     <div id="qr-modal" class="modal-overlay">
         <div class="glass-card" style="width: 100%; max-width: 400px; padding: 2rem; position: relative;">
             <button class="btn-icon" onclick="UI.hideModal('qr-modal')" style="position: absolute; top: 1rem; right: 1rem;">
                 <i class="fas fa-times"></i>
             </button>
-            <h2 style="margin-bottom: 0.5rem;">Product QR Code</h2>
+            <h2 style="margin-bottom: 0.5rem;">Product Barcode</h2>
             <div id="qr-product-name" style="font-weight: 700; margin-bottom: 0.25rem;"></div>
             <div id="qr-product-details" style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.5rem;"></div>
             
             <div style="background: white; padding: 1.5rem; border-radius: 12px; display: inline-block; margin-bottom: 1.5rem;">
-                <div id="qr-code-container"></div>
+                <svg id="barcode-canvas"></svg>
             </div>
             
             <button class="btn btn-primary" onclick="window.printQRCode()" style="width: 100%; justify-content: center;">
-                <i class="fas fa-print"></i> Print QR Code
+                <i class="fas fa-print"></i> Print Barcode
             </button>
         </div>
     </div>
 
-    <script src="js/qrcode.min.js"></script>
+    <script src="js/jsbarcode.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/supabase-client.js"></script>
     <script src="js/store.js?v=13"></script>

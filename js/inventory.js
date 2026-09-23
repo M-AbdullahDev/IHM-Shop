@@ -85,7 +85,7 @@ const Inventory = {
                         <span style="height: 8px; width: 1px; background: var(--glass-border);"></span>
                         <span style="font-weight: 600; color: ${v.quantity <= (v.lowStock || 5) ? 'var(--accent-danger)' : 'var(--text-muted)'};">${v.quantity} units</span>
                         <span style="height: 8px; width: 1px; background: var(--glass-border);"></span>
-                        <i class="fas fa-qrcode" style="cursor: pointer; color: var(--accent-primary);" onclick="window.showQRCode('${v.id}', '${v.name.replace(/'/g, "\\'")}', '${v.size}', '${v.color}')" title="Print QR Code"></i>
+                        <i class="fas fa-barcode" style="cursor: pointer; color: var(--accent-primary);" onclick="window.showBarcode('${v.id}', '${v.name.replace(/'/g, "\\'")}', '${v.size}', '${v.color}')" title="Print Barcode"></i>
                     </div>
                 `).join('');
 
@@ -655,48 +655,45 @@ window.Inventory = Inventory;
 
 let currentQR = null;
 
-window.showQRCode = (id, name, size, color) => {
+window.showBarcode = (id, name, size, color) => {
     let modal = document.getElementById('qr-modal');
     if (!modal) {
-        // Dynamically create the modal if it doesn't exist in DOM
+        // Fallback if not exists in DOM
         const modalHtml = `
+        <!-- Barcode Modal -->
         <div id="qr-modal" class="modal-overlay">
             <div class="glass-card" style="width: 100%; max-width: 400px; padding: 2rem; position: relative;">
                 <button class="btn-icon" onclick="UI.hideModal('qr-modal')" style="position: absolute; top: 1rem; right: 1rem;">
                     <i class="fas fa-times"></i>
                 </button>
-                <h2 style="margin-bottom: 0.5rem;">Product QR Code</h2>
+                <h2 style="margin-bottom: 0.5rem;">Product Barcode</h2>
                 <div id="qr-product-name" style="font-weight: 700; margin-bottom: 0.25rem;"></div>
                 <div id="qr-product-details" style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.5rem;"></div>
                 
                 <div style="background: white; padding: 1.5rem; border-radius: 12px; display: inline-block; margin-bottom: 1.5rem;">
-                    <div id="qr-code-container"></div>
+                    <svg id="barcode-canvas"></svg>
                 </div>
                 
-                <button class="btn btn-primary" onclick="window.printQRCode()" style="width: 100%; justify-content: center;">
-                    <i class="fas fa-print"></i> Print QR Code
+                <button class="btn btn-primary" onclick="window.printBarcode()" style="width: 100%; justify-content: center;">
+                    <i class="fas fa-print"></i> Print Barcode
                 </button>
             </div>
         </div>`;
         document.body.insertAdjacentHTML('beforeend', modalHtml);
     }
 
-    const container = document.getElementById('qr-code-container');
-    if (container) {
-        container.innerHTML = '';
-        
-        try {
-            currentQR = new QRCode(container, {
-                text: id,
-                width: 200,
-                height: 200,
-                colorDark : "#000000",
-                colorLight : "#ffffff",
-                correctLevel : QRCode.CorrectLevel.H
-            });
-        } catch (e) {
-            console.error("QR Code Error:", e);
-        }
+    try {
+        const shortId = id.split('-')[0];
+        JsBarcode("#barcode-canvas", shortId, {
+            format: "CODE128",
+            displayValue: true,
+            fontSize: 14,
+            width: 2,
+            height: 60,
+            margin: 10
+        });
+    } catch (e) {
+        console.error("Barcode Error:", e);
     }
     
     const nameEl = document.getElementById('qr-product-name');
@@ -745,24 +742,28 @@ window.downloadQRCode = () => {
     if(window.UI && window.UI.showToast) window.UI.showToast('QR Code downloading...');
 };
 
-window.printQRCode = () => {
-    const container = document.getElementById('qr-code-container');
+window.printBarcode = () => {
+    const svgElement = document.getElementById('barcode-canvas');
+    if (!svgElement) return;
+
     const name = document.getElementById('qr-product-name').textContent;
     const details = document.getElementById('qr-product-details').textContent;
     
-    if (!container.querySelector('img')) return;
-
-    const qrImage = container.querySelector('img').src;
+    const svgData = new XMLSerializer().serializeToString(svgElement);
+    const barcodeHtml = `
+        <div style="text-align: center; margin-top: 10px;">
+            ${svgData}
+        </div>
+    `;
     
     const printWindow = window.open('', '_blank');
     printWindow.document.write(`
         <html>
         <head>
-            <title>Print QR Code - ${name}</title>
+            <title>Print Barcode - ${name}</title>
             <style>
                 body { font-family: sans-serif; text-align: center; padding: 20px; }
                 .label-container { display: inline-block; border: 1px solid #ccc; padding: 15px; border-radius: 8px; }
-                img { width: 150px; height: 150px; }
                 h3 { margin: 10px 0 5px 0; font-size: 16px; }
                 p { margin: 0; font-size: 14px; color: #555; }
                 @media print {
@@ -773,7 +774,7 @@ window.printQRCode = () => {
         </head>
         <body>
             <div class="label-container">
-                <img src="${qrImage}" />
+                ${barcodeHtml}
                 <h3>${name}</h3>
                 <p>${details}</p>
             </div>

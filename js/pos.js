@@ -63,17 +63,15 @@ const POS = {
 
         // Payment Method Selection
         document.querySelectorAll('.payment-method').forEach(method => {
-            method.addEventListener('click', () => {
-                document.querySelectorAll('.payment-method').forEach(m => m.classList.remove('active'));
-                method.classList.add('active');
-                this.paymentMethod = method.dataset.method;
-
-                const calc = document.getElementById('cash-calculator');
-                if (calc) {
-                    calc.style.display = (this.paymentMethod === 'cash') ? 'block' : 'none';
-                }
+            method.addEventListener('click', (e) => {
+                document.querySelectorAll('.payment-method').forEach(m => m.classList.remove('selected'));
+                const btn = e.target.closest('.payment-method');
+                btn.classList.add('selected');
+                this.paymentMethod = btn.dataset.method;
             });
         });
+
+
 
         // Cash Calculator
         const cashInput = document.getElementById('cash-received');
@@ -152,13 +150,13 @@ const POS = {
 
     processScannedBarcode(barcode) {
         const products = [...Store.getFilteredInventory(), ...Store.getFilteredAccessories()];
-        const product = products.find(p => p.id === barcode);
+        const product = products.find(p => String(p.id) === barcode || String(p.barcode) === barcode || String(p.id).split('-')[0] === barcode);
         
         if (product) {
             this.addToCart(product.id);
             UI.showToast(`Added ${product.name} to cart via scanner.`, 'success');
         } else {
-            UI.showToast(`Product with QR Code ${barcode} not found!`, 'error');
+            UI.showToast(`Product with barcode ${barcode} not found!`, 'error');
             // Play error sound optionally
         }
     },
