@@ -175,6 +175,16 @@
             </nav>
 
             <div style="margin-top: auto; padding-top: 2rem; border-top: 1px solid var(--glass-border);">
+                <div style="display: flex; align-items: center; gap: 1rem; cursor: pointer; margin-bottom: 1rem;" id="lang-toggle-btn" onclick="toggleLanguage()">
+                    <div style="width: 40px; height: 40px; border-radius: 50%; background: var(--bg-card-hover); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                        <i class="fas fa-language" style="color: var(--accent-primary);"></i>
+                    </div>
+                    <div class="sidebar-text">
+                        <div style="font-weight: 600; font-size: 0.9rem;" id="lang-btn-text">اردو Translate</div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted);">Switch Language</div>
+                    </div>
+                </div>
+
                 <div style="display: flex; align-items: center; gap: 1rem; cursor: pointer;" id="logout-btn">
                     <div
                         style="width: 40px; height: 40px; border-radius: 50%; background: var(--bg-card-hover); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
@@ -1652,6 +1662,70 @@
             }
         });
     </script>
+    <!-- Google Translate Integration -->
+    <div id="google_translate_element" style="display:none;"></div>
+    <script type="text/javascript">
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement({
+                pageLanguage: 'en',
+                includedLanguages: 'en,ur',
+                layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+                autoDisplay: false
+            }, 'google_translate_element');
+        }
+
+        function setCookie(name, value, days) {
+            let expires = "";
+            if (days) {
+                let date = new Date();
+                date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+                expires = "; expires=" + date.toUTCString();
+            }
+            document.cookie = name + "=" + (value || "") + expires + "; path=/";
+        }
+
+        function getCookie(name) {
+            let nameEQ = name + "=";
+            let ca = document.cookie.split(';');
+            for (let i = 0; i < ca.length; i++) {
+                let c = ca[i];
+                while (c.charAt(0) == ' ') c = c.substring(1, c.length);
+                if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
+            }
+            return null;
+        }
+
+        window.toggleLanguage = function() {
+            const currentLang = getCookie('googtrans');
+            if (currentLang === '/en/ur') {
+                setCookie('googtrans', '/en/en', 1);
+                setCookie('googtrans', '/en/en', 1, window.location.hostname);
+            } else {
+                setCookie('googtrans', '/en/ur', 1);
+                setCookie('googtrans', '/en/ur', 1, window.location.hostname);
+            }
+            window.location.reload();
+        };
+
+        window.addEventListener('load', () => {
+            const currentLang = getCookie('googtrans');
+            const langBtnText = document.getElementById('lang-btn-text');
+            if (currentLang === '/en/ur') {
+                if(langBtnText) langBtnText.innerText = 'English Translate';
+            } else {
+                if(langBtnText) langBtnText.innerText = 'اردو Translate';
+            }
+            // Auto hide google translate banner if it shows up
+            const style = document.createElement('style');
+            style.innerHTML = `
+                .skiptranslate iframe, .skiptranslate { display: none !important; }
+                body { top: 0 !important; }
+                #goog-gt-tt { display: none !important; }
+            `;
+            document.head.appendChild(style);
+        });
+    </script>
+    <script type="text/javascript" src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 </body>
 
 </html>
